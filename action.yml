@@ -6,11 +6,13 @@ inputs:
   repo-token:
     description: 'GitHub token'
     required: true
+
   label-pattern:
     description: >
       "Pattern (regular expression) to extract label state and name (e.g. '- \\[(.*?)\\] ?`(.+?)`'). "
       "Special characters (such as '/') must be properly escaped."
     required: true
+
   quiet:
     description: "Suppress logging output. Must be either 'true' or 'false'"
     required: false

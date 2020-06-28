@@ -52,3 +52,23 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           label-pattern: '- \\[(.*?)\\] ?`(.+?)`' # matches '- [x] `label`'
 ```
+
+## Inputs
+
+```yml
+inputs:
+  repo-token:
+    description: 'GitHub token'
+    required: true
+
+  label-pattern:
+    description: >
+      "Pattern (regular expression) to extract label state and name (e.g. '- \\[(.*?)\\] ?`(.+?)`'). "
+      "Special characters (such as '/') must be properly escaped."
+    required: true
+
+  quiet:
+    description: "Suppress logging output. Must be either 'true' or 'false'"
+    required: false
+    default: 'false'
+```
