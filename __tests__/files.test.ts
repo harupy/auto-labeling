@@ -23,7 +23,7 @@ function isYaml(path: string): boolean {
 }
 
 describe('files', (): void => {
-  it('make sure no ".yaml" file exists', (): void => {
+  it('make sure no ".yaml" exists (use ".yml" instead)', (): void => {
     const yamlFiles = Array.from(getFiles('.')).filter(isYaml);
     expect(yamlFiles.length).toEqual(0);
   });
