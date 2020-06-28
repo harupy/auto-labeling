@@ -2449,7 +2449,7 @@ const github = __importStar(__webpack_require__(469));
 const enums_1 = __webpack_require__(346);
 const logger_1 = __webpack_require__(504);
 /**
- * Extract `checked` value from an object
+ * Extract labels from the description of an issue or a pull request
  * @param body string that contains labels
  * @param labelPattern regular expression to use to find labels
  * @returns labels (list of { name: string; checked: boolean; })
@@ -2557,9 +2557,9 @@ function main() {
                     for (const issue of page.data) {
                         /**
                          * For each issue and pull request, does the following:
-                         * 1. Extract labels from the description.
-                         * 2. Remove unchecked labels if they are already attached.
-                         * 3. Add checked labels if they are NOT attached.
+                         * 1. Extract labels from the description
+                         * 2. Remove unchecked labels if they are already attached
+                         * 3. Add checked labels if they are NOT attached
                          */
                         const { body, number: issue_number, html_url, } = issue;
                         logger.debug(`<<< ${html_url} >>>`);
@@ -2578,7 +2578,7 @@ function main() {
                         const labelsForRepo = labelsForRepoResp.data.map(getName);
                         // Labels in the description
                         const labels = extractLabels(body, labelPattern).filter(({ name }) => 
-                        // Remove labels that are not registered in the repository.
+                        // Remove labels that are not registered in the repository
                         labelsForRepo.includes(name));
                         if (labels.length === 0) {
                             logger.debug('No label found in the description');
