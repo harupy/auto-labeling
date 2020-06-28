@@ -29,3 +29,26 @@ Select a category that this issue belongs to.
 ```
 
 `auto-labeling` automatically removes `category 3` and adds `category`.
+
+## Example workflow
+
+```yml
+name: Auto Labeling
+
+# A GitHub token created on a forked PR does not have a write permission required to add labels.
+# To avoid this issue, use the `scheduled` event and run this action on a certain interval.
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+
+jobs:
+  labeling:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: harupy/auto-labeling@master
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          label-pattern: '- \\[(.*?)\\] ?`(.+?)`' # matches '- [x] `label`'
+```
