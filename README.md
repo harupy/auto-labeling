@@ -29,3 +29,24 @@ Select a category that this issue belongs to.
 ```
 
 `auto-labeling` automatically removes `category 3` and adds `category`.
+
+## Example workflow
+
+```yml
+name: Cron
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: harupy/auto-labeling@master
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          label-pattern: '- \\[(.*?)\\] ?`(.+?)`' # matches '- [x] `label`'
+```
