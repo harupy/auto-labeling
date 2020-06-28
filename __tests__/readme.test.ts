@@ -2,11 +2,6 @@ import fs from 'fs';
 
 function extractFirstCapturingGroup(body: string, pattern: RegExp): string {
   const m = pattern.exec(body);
-
-  if (m === null) {
-    return '';
-  }
-
   return m === null ? '' : m[1];
 }
 
