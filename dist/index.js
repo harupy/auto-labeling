@@ -6053,12 +6053,15 @@ class Logger {
     constructor(level = 0) {
         this.level = level;
     }
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     log(message, ...optionalParams) {
         console.log(message, ...optionalParams);
     }
     shouldLog(level) {
         return this.level <= level;
     }
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
     debug(message, ...optionalParams) {
         if (this.shouldLog(LoggingLevel.DEBUG)) {
             this.log(message, ...optionalParams);
