@@ -1,6 +1,9 @@
 name: 'Auto Labeling'
 description: 'Automate labeling on issues and pull requests'
 author: 'harupy'
+branding:
+  color: 'green'
+  icon: 'tag'
 
 inputs:
   repo-token:
