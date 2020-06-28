@@ -14,7 +14,7 @@ function extractFirstCapturingGroup(
 }
 
 describe('README.md', (): void => {
-  it('inputs section on README.md should have the same content as action.yml', () => {
+  it('inputs section on README.md should have the same content as action.yml', (): void => {
     const contentReadme = fs.readFileSync('README.md', 'utf-8');
     const contentActionYml = fs.readFileSync('action.yml', 'utf-8');
 
