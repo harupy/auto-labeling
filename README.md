@@ -9,26 +9,26 @@ A GitHub Action that automates labeling on issues and pull requests.
 ```markdown
 <!-- pull_request_template.md -->
 
-Select categories that this PR affects.
+What kind of change does this PR introduce?
 
-- [ ] `category 1`: ...
-- [ ] `category 2`: ...
-- [x] `category 3`: ...
+- [x] `bug-fix`
+- [ ] `new-feature`
+- [ ] `enhancement`
 ```
 
-With this example, `auto-labeling` adds `category 3`. When a user updates the description later as follows:
+This description makes `auto-labeling` add `bug-fix`. If someone updates the description as follows:
 
 ```markdown
 <!-- pull_request_template.md -->
 
-Select categories that this issue belongs to.
+What kind of change does this PR introduce?
 
-- [ ] `category 1`: ...
-- [x] `category 2`: ...
-- [ ] `category 3`: ...
+- [ ] `bug-fix`
+- [ ] `new-feature`
+- [x] `enhancement`
 ```
 
-`auto-labeling` automatically removes `category 3` and adds `category`.
+Then, `auto-labeling` removes `bug-fix` and adds `enhancement`.
 
 ## Example workflow
 
