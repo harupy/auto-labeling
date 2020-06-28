@@ -21,7 +21,7 @@ With this example, `auto-labeling` adds `category 3`. When a user updates the de
 ```markdown
 <!-- pull_request_template.md -->
 
-Select a category that this issue belongs to.
+Select categories that this issue belongs to.
 
 - [ ] `category 1`: ...
 - [x] `category 2`: ...
