@@ -1,5 +1,8 @@
 # Auto Labeling
 
+[![CI](https://github.com/harupy/auto-labeling/workflows/CI/badge.svg)](https://github.com/harupy/auto-labeling/actions?query=workflow%3ACI)
+[![Cron](https://github.com/harupy/auto-labeling/workflows/Cron/badge.svg)](https://github.com/harupy/auto-labeling/actions?query=workflow%3ACron)
+
 A GitHub Action that automates labeling on issues and pull requests.
 
 ## How it works
