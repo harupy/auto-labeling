@@ -31,7 +31,7 @@ What kind of change does this PR introduce?
 - [x] `enhancement`
 ```
 
-Then, `auto-labeling` removes `bug-fix` and adds `enhancement`. Note that unregistered labels are ignored.
+Then, `auto-labeling` removes `bug-fix` and adds `enhancement`. **Note that unregistered labels are ignored.**
 
 ## Example workflow
 
