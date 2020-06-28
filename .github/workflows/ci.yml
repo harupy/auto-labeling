@@ -54,7 +54,7 @@ jobs:
           fi
 
   test-run:
-    needs: test
+    needs: [lint, test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
