@@ -1,12 +1,15 @@
-name: 'Labeler'
-description: 'A bot to automate issue labeling'
+name: 'Auto Labeling'
+description: 'Automate labeling on issues and pull requests'
 author: 'harupy'
+
 inputs:
   repo-token:
-    description: 'GITHUB_TOKEN'
+    description: 'GitHub token'
     required: true
   label-pattern:
-    description: "Pattern (regular expression) to extract labels (e.g. '- \\[([ xX]*)\\] ?`(.+?)`')"
+    description: >
+      "Pattern (regular expression) to extract label state and name (e.g. '- \\[(.*?)\\] ?`(.+?)`'). "
+      "Special characters (such as '/') must be properly escaped."
     required: true
   quiet:
     description: "Suppress logging output. Must be either 'true' or 'false'"
