@@ -2,12 +2,9 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import * as types from '@octokit/types';
 
+import { Label } from './types';
+import { Quiet } from './enums';
 import { Logger, LoggingLevel } from './logger';
-
-type Label = {
-  name: string;
-  checked: boolean;
-};
 
 /**
  * Extract `checked` value from an object
@@ -104,11 +101,6 @@ export function validateEnum<T>(
       `\`${name}\` must be one of [${joined}], but got ${wrap(val)}`,
     );
   }
-}
-
-enum Quiet {
-  TRUE = 'true',
-  FALSE = 'false',
 }
 
 async function main(): Promise<void> {

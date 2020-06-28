@@ -2446,6 +2446,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.validateEnum = exports.formatStrArray = exports.getChecked = exports.getName = exports.extractLabels = void 0;
 const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
+const enums_1 = __webpack_require__(346);
 const logger_1 = __webpack_require__(504);
 /**
  * Extract `checked` value from an object
@@ -2538,11 +2539,6 @@ function validateEnum(name, val, enumObj) {
     }
 }
 exports.validateEnum = validateEnum;
-var Quiet;
-(function (Quiet) {
-    Quiet["TRUE"] = "true";
-    Quiet["FALSE"] = "false";
-})(Quiet || (Quiet = {}));
 function main() {
     var e_1, _a;
     return __awaiter(this, void 0, void 0, function* () {
@@ -2550,7 +2546,7 @@ function main() {
             const token = core.getInput('repo-token', { required: true });
             const labelPattern = core.getInput('label-pattern', { required: true });
             const quiet = core.getInput('quiet', { required: true });
-            validateEnum('quiet', quiet, Quiet);
+            validateEnum('quiet', quiet, enums_1.Quiet);
             const logger = new logger_1.Logger(quiet === 'true' ? logger_1.LoggingLevel.SILENT : logger_1.LoggingLevel.DEBUG);
             const octokit = github.getOctokit(token);
             const { repo, owner } = github.context.repo;
@@ -3068,6 +3064,22 @@ isStream.duplex = function (stream) {
 isStream.transform = function (stream) {
 	return isStream.duplex(stream) && typeof stream._transform === 'function' && typeof stream._transformState === 'object';
 };
+
+
+/***/ }),
+
+/***/ 346:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Quiet = void 0;
+var Quiet;
+(function (Quiet) {
+    Quiet["TRUE"] = "true";
+    Quiet["FALSE"] = "false";
+})(Quiet = exports.Quiet || (exports.Quiet = {}));
 
 
 /***/ }),
