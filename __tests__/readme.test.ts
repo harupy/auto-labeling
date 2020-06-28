@@ -1,8 +1,16 @@
 import fs from 'fs';
 
-function extractFirstCapturingGroup(body: string, pattern: RegExp): string {
+function extractFirstCapturingGroup(
+  body: string,
+  pattern: RegExp,
+): never | string {
   const m = pattern.exec(body);
-  return m === null ? '' : m[1];
+
+  if (m === null) {
+    throw new Error('No match found');
+  }
+
+  return m[1];
 }
 
 describe('README.md', (): void => {
