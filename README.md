@@ -33,14 +33,14 @@ Select a category that this issue belongs to.
 ## Example workflow
 
 ```yml
-name: Cron
+name: Auto Labeling
 
 on:
   schedule:
     - cron: '*/10 * * * *'
 
 jobs:
-  cron:
+  labeling:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
