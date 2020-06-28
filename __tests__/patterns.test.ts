@@ -9,9 +9,8 @@ function testPatterns(
   for (const [label, [state, name]] of Object.entries(testCases)) {
     const m = regexp.exec(label);
 
-    // Required to suppress the typescript error: "Object is possibly 'null'"
     if (m === null) {
-      return;
+      throw new Error('No match found');
     }
 
     expect(m[1]).toEqual(state);
