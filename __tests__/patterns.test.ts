@@ -1,6 +1,9 @@
 import { BACKTICK, COLON, ASTERISK, DOUBLE_ASTERISK } from '../src/patterns';
 
-function testPatterns(pattern: string, testCases: { [key: string]: string[] }) {
+function testPatterns(
+  pattern: string,
+  testCases: { [key: string]: string[] },
+): void {
   const regexp = new RegExp(pattern);
 
   for (const [label, [state, name]] of Object.entries(testCases)) {
