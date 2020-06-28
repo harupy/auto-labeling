@@ -35,6 +35,8 @@ Select a category that this issue belongs to.
 ```yml
 name: Auto Labeling
 
+# A GitHub token created on a forked PR does not have a write permission required to add labels.
+# To avoid this issue, use the `scheduled` event and run this action every 10 minutes.
 on:
   schedule:
     - cron: '*/10 * * * *'
