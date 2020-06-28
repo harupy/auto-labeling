@@ -160,7 +160,7 @@ async function main(): Promise<void> {
         );
 
         if (labels.length === 0) {
-          logger.debug('No labels found in the description');
+          logger.debug('No label found in the description');
           continue;
         }
 
