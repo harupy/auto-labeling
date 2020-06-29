@@ -2607,14 +2607,15 @@ function main() {
             const octokit = github.getOctokit(token);
             const { repo, owner } = github.context.repo;
             switch (github.context.eventName) {
+                case 'issues':
                 case 'pull_request': {
-                    const pull_number = github.context.issue.number;
-                    const { data: { body }, } = yield octokit.pulls.get({
+                    const issue_number = github.context.issue.number;
+                    const { data: { body }, } = yield octokit.issues.get({
                         owner,
                         repo,
-                        pull_number,
+                        issue_number,
                     });
-                    yield processLabels(octokit, repo, owner, pull_number, body, labelPattern, quiet === 'true');
+                    yield processLabels(octokit, repo, owner, issue_number, body, labelPattern, quiet === 'true');
                     break;
                 }
                 case 'scheduled': {

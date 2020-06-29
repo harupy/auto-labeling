@@ -198,21 +198,22 @@ async function main(): Promise<void> {
     const { repo, owner } = github.context.repo;
 
     switch (github.context.eventName) {
+      case 'issues':
       case 'pull_request': {
-        const pull_number = github.context.issue.number;
+        const issue_number = github.context.issue.number;
         const {
           data: { body },
-        } = await octokit.pulls.get({
+        } = await octokit.issues.get({
           owner,
           repo,
-          pull_number,
+          issue_number,
         });
 
         await processLabels(
           octokit,
           repo,
           owner,
-          pull_number,
+          issue_number,
           body,
           labelPattern,
           quiet === 'true',
