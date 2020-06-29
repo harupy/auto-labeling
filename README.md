@@ -67,7 +67,7 @@ jobs:
       - uses: harupy/auto-labeling@master
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          label-pattern: '- \\[(.*?)\\] ?`(.+?)`' # matches '- [x] `label`'
+          label-pattern: '- \[(.*?)\] ?`(.+?)`' # matches '- [x] `label`'
 ```
 
 ## Inputs
