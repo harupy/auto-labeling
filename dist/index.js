@@ -2618,7 +2618,7 @@ function main() {
                     yield processLabels(octokit, repo, owner, issue_number, body, labelPattern, logger);
                     break;
                 }
-                case 'scheduled': {
+                case 'schedule': {
                     try {
                         // Iterate over all open issues and pull requests
                         for (var _b = __asyncValues(octokit.paginate.iterator(octokit.issues.listForRepo, { owner, repo })), _c; _c = yield _b.next(), !_c.done;) {
