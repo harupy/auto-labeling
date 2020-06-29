@@ -2450,7 +2450,7 @@ const enums_1 = __webpack_require__(346);
 const logger_1 = __webpack_require__(504);
 /**
  * Extract labels from the description of an issue or a pull request
- * @param body string that contains labels
+ * @param description string that contains labels
  * @param labelPattern regular expression to use to find labels
  * @returns labels (list of { name: string; checked: boolean; })
  *
@@ -2460,9 +2460,9 @@ const logger_1 = __webpack_require__(504);
  * > extractLabels(body, labelPattern)
  * [ { name: 'a', checked: false }, { name: 'b', checked: true } ]
  */
-function extractLabels(body, labelPattern) {
+function extractLabels(description, labelPattern) {
     function helper(regex, labels = []) {
-        const res = regex.exec(body);
+        const res = regex.exec(description);
         if (res) {
             const checked = res[1].trim().toLocaleLowerCase() === 'x';
             const name = res[2].trim();
@@ -2470,7 +2470,7 @@ function extractLabels(body, labelPattern) {
         }
         return labels;
     }
-    return helper(new RegExp(labelPattern, 'gm'));
+    return helper(new RegExp(labelPattern, 'g'));
 }
 exports.extractLabels = extractLabels;
 /**
@@ -2539,6 +2539,63 @@ function validateEnum(name, val, enumObj) {
     }
 }
 exports.validateEnum = validateEnum;
+function processLabels(octokit, repo, owner, issue_number, description, labelPattern, quiet) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const logger = new logger_1.Logger(quiet ? logger_1.LoggingLevel.SILENT : logger_1.LoggingLevel.DEBUG);
+        logger.debug(`<<< ${issue_number} >>>`);
+        // Labels already attached on the pull request
+        const labelsOnIssueResp = yield octokit.issues.listLabelsOnIssue({
+            owner,
+            repo,
+            issue_number,
+        });
+        const labelsOnIssue = labelsOnIssueResp.data.map(getName);
+        // Labels registered in the repository
+        const labelsForRepoResp = yield octokit.issues.listLabelsForRepo({
+            owner,
+            repo,
+        });
+        const labelsForRepo = labelsForRepoResp.data.map(getName);
+        // Labels in the description
+        const labels = extractLabels(description, labelPattern).filter(({ name }) => 
+        // Remove labels that are not registered in the repository
+        labelsForRepo.includes(name));
+        if (labels.length === 0) {
+            logger.debug('No registered label found in the description');
+            return;
+        }
+        logger.debug('Checked labels:');
+        logger.debug(formatStrArray(labels.filter(getChecked).map(getName)));
+        // Remove unchecked labels
+        const shouldRemove = ({ name, checked }) => !checked && labelsOnIssue.includes(name);
+        const labelsToRemove = labels.filter(shouldRemove).map(getName);
+        logger.debug('Labels to remove:');
+        logger.debug(formatStrArray(labelsToRemove));
+        if (labelsToRemove.length > 0) {
+            labelsToRemove.forEach((name) => __awaiter(this, void 0, void 0, function* () {
+                yield octokit.issues.removeLabel({
+                    owner,
+                    repo,
+                    issue_number,
+                    name,
+                });
+            }));
+        }
+        // Add checked labels
+        const shouldAdd = ({ name, checked }) => checked && !labelsOnIssue.includes(name);
+        const labelsToAdd = labels.filter(shouldAdd).map(getName);
+        logger.debug('Labels to add:');
+        logger.debug(formatStrArray(labelsToAdd));
+        if (labelsToAdd.length > 0) {
+            yield octokit.issues.addLabels({
+                owner,
+                repo,
+                issue_number,
+                labels: labelsToAdd,
+            });
+        }
+    });
+}
 function main() {
     var e_1, _a;
     return __awaiter(this, void 0, void 0, function* () {
@@ -2547,82 +2604,43 @@ function main() {
             const labelPattern = core.getInput('label-pattern', { required: true });
             const quiet = core.getInput('quiet', { required: true });
             validateEnum('quiet', quiet, enums_1.Quiet);
-            const logger = new logger_1.Logger(quiet === 'true' ? logger_1.LoggingLevel.SILENT : logger_1.LoggingLevel.DEBUG);
             const octokit = github.getOctokit(token);
             const { repo, owner } = github.context.repo;
-            try {
-                // Iterate over all open issues and pull requests
-                for (var _b = __asyncValues(octokit.paginate.iterator(octokit.issues.listForRepo, { owner, repo })), _c; _c = yield _b.next(), !_c.done;) {
-                    const page = _c.value;
-                    for (const issue of page.data) {
-                        /**
-                         * For each issue and pull request, does the following:
-                         * 1. Extract labels from the description
-                         * 2. Remove unchecked labels if they are already attached
-                         * 3. Add checked labels if they are NOT attached
-                         */
-                        const { body, number: issue_number, html_url, } = issue;
-                        logger.debug(`<<< ${html_url} >>>`);
-                        // Labels already attached on the pull request
-                        const labelsOnIssueResp = yield octokit.issues.listLabelsOnIssue({
-                            owner,
-                            repo,
-                            issue_number,
-                        });
-                        const labelsOnIssue = labelsOnIssueResp.data.map(getName);
-                        // Labels registered in the repository
-                        const labelsForRepoResp = yield octokit.issues.listLabelsForRepo({
-                            owner,
-                            repo,
-                        });
-                        const labelsForRepo = labelsForRepoResp.data.map(getName);
-                        // Labels in the description
-                        const labels = extractLabels(body, labelPattern).filter(({ name }) => 
-                        // Remove labels that are not registered in the repository
-                        labelsForRepo.includes(name));
-                        if (labels.length === 0) {
-                            logger.debug('No label found in the description');
-                            continue;
-                        }
-                        logger.debug('Checked labels:');
-                        logger.debug(formatStrArray(labels.filter(getChecked).map(getName)));
-                        // Remove unchecked labels
-                        const shouldRemove = ({ name, checked }) => !checked && labelsOnIssue.includes(name);
-                        const labelsToRemove = labels.filter(shouldRemove).map(getName);
-                        logger.debug('Labels to remove:');
-                        logger.debug(formatStrArray(labelsToRemove));
-                        if (labelsToRemove.length > 0) {
-                            labelsToRemove.forEach((name) => __awaiter(this, void 0, void 0, function* () {
-                                yield octokit.issues.removeLabel({
-                                    owner,
-                                    repo,
-                                    issue_number,
-                                    name,
-                                });
-                            }));
-                        }
-                        // Add checked labels
-                        const shouldAdd = ({ name, checked }) => checked && !labelsOnIssue.includes(name);
-                        const labelsToAdd = labels.filter(shouldAdd).map(getName);
-                        logger.debug('Labels to add:');
-                        logger.debug(formatStrArray(labelsToAdd));
-                        if (labelsToAdd.length > 0) {
-                            yield octokit.issues.addLabels({
-                                owner,
-                                repo,
-                                issue_number,
-                                labels: labelsToAdd,
-                            });
+            switch (github.context.eventName) {
+                case 'issues':
+                case 'pull_request': {
+                    const issue_number = github.context.issue.number;
+                    const { data: { body }, } = yield octokit.issues.get({
+                        owner,
+                        repo,
+                        issue_number,
+                    });
+                    yield processLabels(octokit, repo, owner, issue_number, body, labelPattern, quiet === 'true');
+                    break;
+                }
+                case 'scheduled': {
+                    try {
+                        // Iterate over all open issues and pull requests
+                        for (var _b = __asyncValues(octokit.paginate.iterator(octokit.issues.listForRepo, { owner, repo })), _c; _c = yield _b.next(), !_c.done;) {
+                            const page = _c.value;
+                            for (const issue of page.data) {
+                                const { body, number } = issue;
+                                yield processLabels(octokit, repo, owner, number, body, labelPattern, quiet === 'true');
+                            }
                         }
                     }
+                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                    finally {
+                        try {
+                            if (_c && !_c.done && (_a = _b.return)) yield _a.call(_b);
+                        }
+                        finally { if (e_1) throw e_1.error; }
+                    }
+                    break;
                 }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) yield _a.call(_b);
+                default: {
+                    return;
                 }
-                finally { if (e_1) throw e_1.error; }
             }
         }
         catch (error) {
