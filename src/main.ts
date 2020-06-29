@@ -219,6 +219,7 @@ async function main(): Promise<void> {
           labelPattern,
           quiet === 'true',
         );
+        break;
 
       case 'scheduled':
         // Iterate over all open issues and pull requests
@@ -243,6 +244,9 @@ async function main(): Promise<void> {
             );
           }
         }
+        break;
+      default:
+        return;
     }
   } catch (error) {
     core.setFailed(error.message);

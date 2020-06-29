@@ -2616,23 +2616,28 @@ function main() {
                         pull_number,
                     });
                     yield processLabels(octokit, repo, owner, pull_number, body, labelPattern, quiet === 'true');
-                case 'scheduled': try {
-                    // Iterate over all open issues and pull requests
-                    for (var _b = __asyncValues(octokit.paginate.iterator(octokit.issues.listForRepo, { owner, repo })), _c; _c = yield _b.next(), !_c.done;) {
-                        const page = _c.value;
-                        for (const issue of page.data) {
-                            const { body, number: issue_number, } = issue;
-                            yield processLabels(octokit, repo, owner, issue_number, body, labelPattern, quiet === 'true');
+                    break;
+                case 'scheduled':
+                    try {
+                        // Iterate over all open issues and pull requests
+                        for (var _b = __asyncValues(octokit.paginate.iterator(octokit.issues.listForRepo, { owner, repo })), _c; _c = yield _b.next(), !_c.done;) {
+                            const page = _c.value;
+                            for (const issue of page.data) {
+                                const { body, number: issue_number, } = issue;
+                                yield processLabels(octokit, repo, owner, issue_number, body, labelPattern, quiet === 'true');
+                            }
                         }
                     }
-                }
-                catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                finally {
-                    try {
-                        if (_c && !_c.done && (_a = _b.return)) yield _a.call(_b);
+                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                    finally {
+                        try {
+                            if (_c && !_c.done && (_a = _b.return)) yield _a.call(_b);
+                        }
+                        finally { if (e_1) throw e_1.error; }
                     }
-                    finally { if (e_1) throw e_1.error; }
-                }
+                    break;
+                default:
+                    return;
             }
         }
         catch (error) {
