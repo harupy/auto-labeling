@@ -1,8 +1,10 @@
-name: Cron
+name: PR
 
 on:
-  schedule:
-    - cron: '*/10 * * * *'
+  issues:
+    types:
+      - opened
+      - edited
 
 jobs:
   labeling:
