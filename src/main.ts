@@ -4,63 +4,9 @@ import * as types from '@octokit/types';
 
 import { Label } from './types';
 import { Quiet } from './enums';
-import { formatStrArray, validateEnum } from '../src/utils';
+import { formatStrArray, validateEnum } from './utils';
+import { extractLabels, getName, getChecked } from './labels';
 import { Logger, LoggingLevel } from './logger';
-
-/**
- * Extract labels from the description of an issue or a pull request
- * @param description string that contains labels
- * @param labelPattern regular expression to use to find labels
- * @returns labels (list of { name: string; checked: boolean; })
- *
- * @example
- * > const body = '- [ ] `a`\n- [x] `b`'
- * > const labelPattern = '- \\[([ xX]*)\\] ?`(.+?)`'
- * > extractLabels(body, labelPattern)
- * [ { name: 'a', checked: false }, { name: 'b', checked: true } ]
- */
-export function extractLabels(
-  description: string,
-  labelPattern: string,
-): Label[] {
-  function helper(regex: RegExp, labels: Label[] = []): Label[] {
-    const res = regex.exec(description);
-
-    if (res) {
-      const checked = res[1].trim().toLocaleLowerCase() === 'x';
-      const name = res[2].trim();
-      return helper(regex, [...labels, { name, checked }]);
-    }
-    return labels;
-  }
-  return helper(new RegExp(labelPattern, 'g'));
-}
-
-/**
- * Get `name` property from an object
- * @param obj object that has `name` property
- * @returns value of `name` property
- *
- * @example
- * > getName({ name: 'a' })
- * 'a'
- */
-export function getName({ name }: { name: string }): string {
-  return name;
-}
-
-/**
- * Get `checked` property from an object
- * @param obj object that has `checked` property
- * @returns value of `checked` property
- *
- * @example
- * > getChecked({ checked: true })
- * true
- */
-export function getChecked({ checked }: { checked: boolean }): boolean {
-  return checked;
-}
 
 async function processIssue(
   octokit: ReturnType<typeof github.getOctokit>,

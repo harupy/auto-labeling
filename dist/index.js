@@ -1871,6 +1871,68 @@ module.exports = windowsRelease;
 
 /***/ }),
 
+/***/ 66:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getChecked = exports.getName = exports.extractLabels = void 0;
+/**
+ * Extract labels from the description of an issue or a pull request
+ * @param description string that contains labels
+ * @param labelPattern regular expression to use to find labels
+ * @returns labels (list of { name: string; checked: boolean; })
+ *
+ * @example
+ * > const body = '- [ ] `a`\n- [x] `b`'
+ * > const labelPattern = '- \\[([ xX]*)\\] ?`(.+?)`'
+ * > extractLabels(body, labelPattern)
+ * [ { name: 'a', checked: false }, { name: 'b', checked: true } ]
+ */
+function extractLabels(description, labelPattern) {
+    function helper(regex, labels = []) {
+        const res = regex.exec(description);
+        if (res) {
+            const checked = res[1].trim().toLocaleLowerCase() === 'x';
+            const name = res[2].trim();
+            return helper(regex, [...labels, { name, checked }]);
+        }
+        return labels;
+    }
+    return helper(new RegExp(labelPattern, 'g'));
+}
+exports.extractLabels = extractLabels;
+/**
+ * Get `name` property from an object
+ * @param obj object that has `name` property
+ * @returns value of `name` property
+ *
+ * @example
+ * > getName({ name: 'a' })
+ * 'a'
+ */
+function getName({ name }) {
+    return name;
+}
+exports.getName = getName;
+/**
+ * Get `checked` property from an object
+ * @param obj object that has `checked` property
+ * @returns value of `checked` property
+ *
+ * @example
+ * > getChecked({ checked: true })
+ * true
+ */
+function getChecked({ checked }) {
+    return checked;
+}
+exports.getChecked = getChecked;
+
+
+/***/ }),
+
 /***/ 87:
 /***/ (function(module) {
 
@@ -2305,57 +2367,6 @@ module.exports.MaxBufferError = MaxBufferError;
 
 /***/ }),
 
-/***/ 163:
-/***/ (function(__unusedmodule, exports) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateEnum = exports.formatStrArray = void 0;
-/**
- * Format a string array into a list
- * @param strArray string array
- * @returns string that represents a list
- *
- * @example
- * > toListStr(['a', 'b'])
- * - a
- * - b
- */
-function formatStrArray(strArray) {
-    if (strArray.length === 0) {
-        return '';
-    }
-    return strArray.map(s => `- ${s}`).join('\n') + '\n';
-}
-exports.formatStrArray = formatStrArray;
-/**
- * Validate an enum value
- * @param name name of the variable to check
- * @param val value to check
- * @param enumObj enum object
- *
- * @example
- * > enum CD {
- *   C = 'c',
- *   D = 'd',
- * }
- * > validateEnums('a', 'b', CD)
- * Uncaught Error: `a` must be one of ['c', 'd'], but got 'b'
- */
-function validateEnum(name, val, enumObj) {
-    const values = Object.values(enumObj);
-    if (!values.includes(val)) {
-        const wrap = (s) => `'${s}'`;
-        const joined = values.map(wrap).join(', ');
-        throw new Error(`\`${name}\` must be one of [${joined}], but got ${wrap(val)}`);
-    }
-}
-exports.validateEnum = validateEnum;
-
-
-/***/ }),
-
 /***/ 168:
 /***/ (function(module) {
 
@@ -2494,63 +2505,12 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
     function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getChecked = exports.getName = exports.extractLabels = void 0;
 const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
 const enums_1 = __webpack_require__(346);
-const utils_1 = __webpack_require__(163);
+const utils_1 = __webpack_require__(611);
+const labels_1 = __webpack_require__(66);
 const logger_1 = __webpack_require__(504);
-/**
- * Extract labels from the description of an issue or a pull request
- * @param description string that contains labels
- * @param labelPattern regular expression to use to find labels
- * @returns labels (list of { name: string; checked: boolean; })
- *
- * @example
- * > const body = '- [ ] `a`\n- [x] `b`'
- * > const labelPattern = '- \\[([ xX]*)\\] ?`(.+?)`'
- * > extractLabels(body, labelPattern)
- * [ { name: 'a', checked: false }, { name: 'b', checked: true } ]
- */
-function extractLabels(description, labelPattern) {
-    function helper(regex, labels = []) {
-        const res = regex.exec(description);
-        if (res) {
-            const checked = res[1].trim().toLocaleLowerCase() === 'x';
-            const name = res[2].trim();
-            return helper(regex, [...labels, { name, checked }]);
-        }
-        return labels;
-    }
-    return helper(new RegExp(labelPattern, 'g'));
-}
-exports.extractLabels = extractLabels;
-/**
- * Get `name` property from an object
- * @param obj object that has `name` property
- * @returns value of `name` property
- *
- * @example
- * > getName({ name: 'a' })
- * 'a'
- */
-function getName({ name }) {
-    return name;
-}
-exports.getName = getName;
-/**
- * Get `checked` property from an object
- * @param obj object that has `checked` property
- * @returns value of `checked` property
- *
- * @example
- * > getChecked({ checked: true })
- * true
- */
-function getChecked({ checked }) {
-    return checked;
-}
-exports.getChecked = getChecked;
 function processIssue(octokit, repo, owner, issue_number, description, labelPattern, logger) {
     return __awaiter(this, void 0, void 0, function* () {
         logger.debug(`<<< ${issue_number} >>>`);
@@ -2560,15 +2520,15 @@ function processIssue(octokit, repo, owner, issue_number, description, labelPatt
             repo,
             issue_number,
         });
-        const labelsOnIssue = labelsOnIssueResp.data.map(getName);
+        const labelsOnIssue = labelsOnIssueResp.data.map(labels_1.getName);
         // Labels registered in the repository
         const labelsForRepoResp = yield octokit.issues.listLabelsForRepo({
             owner,
             repo,
         });
-        const labelsForRepo = labelsForRepoResp.data.map(getName);
+        const labelsForRepo = labelsForRepoResp.data.map(labels_1.getName);
         // Labels in the description
-        const labels = extractLabels(description, labelPattern).filter(({ name }) => 
+        const labels = labels_1.extractLabels(description, labelPattern).filter(({ name }) => 
         // Remove labels that are not registered in the repository
         labelsForRepo.includes(name));
         if (labels.length === 0) {
@@ -2576,10 +2536,10 @@ function processIssue(octokit, repo, owner, issue_number, description, labelPatt
             return;
         }
         logger.debug('Checked labels:');
-        logger.debug(utils_1.formatStrArray(labels.filter(getChecked).map(getName)));
+        logger.debug(utils_1.formatStrArray(labels.filter(labels_1.getChecked).map(labels_1.getName)));
         // Remove unchecked labels
         const shouldRemove = ({ name, checked }) => !checked && labelsOnIssue.includes(name);
-        const labelsToRemove = labels.filter(shouldRemove).map(getName);
+        const labelsToRemove = labels.filter(shouldRemove).map(labels_1.getName);
         logger.debug('Labels to remove:');
         logger.debug(utils_1.formatStrArray(labelsToRemove));
         if (labelsToRemove.length > 0) {
@@ -2594,7 +2554,7 @@ function processIssue(octokit, repo, owner, issue_number, description, labelPatt
         }
         // Add checked labels
         const shouldAdd = ({ name, checked }) => checked && !labelsOnIssue.includes(name);
-        const labelsToAdd = labels.filter(shouldAdd).map(getName);
+        const labelsToAdd = labels.filter(shouldAdd).map(labels_1.getName);
         logger.debug('Labels to add:');
         logger.debug(utils_1.formatStrArray(labelsToAdd));
         if (labelsToAdd.length > 0) {
@@ -7016,6 +6976,57 @@ module.exports = parse;
 /***/ (function(module) {
 
 module.exports = require("http");
+
+/***/ }),
+
+/***/ 611:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.validateEnum = exports.formatStrArray = void 0;
+/**
+ * Format a string array into a list
+ * @param strArray string array
+ * @returns string that represents a list
+ *
+ * @example
+ * > toListStr(['a', 'b'])
+ * - a
+ * - b
+ */
+function formatStrArray(strArray) {
+    if (strArray.length === 0) {
+        return '';
+    }
+    return strArray.map(s => `- ${s}`).join('\n') + '\n';
+}
+exports.formatStrArray = formatStrArray;
+/**
+ * Validate an enum value
+ * @param name name of the variable to check
+ * @param val value to check
+ * @param enumObj enum object
+ *
+ * @example
+ * > enum CD {
+ *   C = 'c',
+ *   D = 'd',
+ * }
+ * > validateEnums('a', 'b', CD)
+ * Uncaught Error: `a` must be one of ['c', 'd'], but got 'b'
+ */
+function validateEnum(name, val, enumObj) {
+    const values = Object.values(enumObj);
+    if (!values.includes(val)) {
+        const wrap = (s) => `'${s}'`;
+        const joined = values.map(wrap).join(', ');
+        throw new Error(`\`${name}\` must be one of [${joined}], but got ${wrap(val)}`);
+    }
+}
+exports.validateEnum = validateEnum;
+
 
 /***/ }),
 

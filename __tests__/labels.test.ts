@@ -1,6 +1,6 @@
-import { extractLabels, getName, getChecked } from '../src/main';
+import { extractLabels, getName, getChecked } from '../src/labels';
 
-describe('main', (): void => {
+describe('labels', (): void => {
   it(extractLabels.name, (): void => {
     const body = [
       '- [] `a`: a',
