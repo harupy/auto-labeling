@@ -2606,9 +2606,8 @@ function main() {
             validateEnum('quiet', quiet, enums_1.Quiet);
             const octokit = github.getOctokit(token);
             const { repo, owner } = github.context.repo;
-            console.log(github.context.eventName);
             switch (github.context.eventName) {
-                case 'pull_request':
+                case 'pull_request': {
                     const pull_number = github.context.issue.number;
                     const { data: { body }, } = yield octokit.pulls.get({
                         owner,
@@ -2617,7 +2616,8 @@ function main() {
                     });
                     yield processLabels(octokit, repo, owner, pull_number, body, labelPattern, quiet === 'true');
                     break;
-                case 'scheduled':
+                }
+                case 'scheduled': {
                     try {
                         // Iterate over all open issues and pull requests
                         for (var _b = __asyncValues(octokit.paginate.iterator(octokit.issues.listForRepo, { owner, repo })), _c; _c = yield _b.next(), !_c.done;) {
@@ -2636,8 +2636,10 @@ function main() {
                         finally { if (e_1) throw e_1.error; }
                     }
                     break;
-                default:
+                }
+                default: {
                     return;
+                }
             }
         }
         catch (error) {

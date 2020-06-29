@@ -197,10 +197,8 @@ async function main(): Promise<void> {
 
     const { repo, owner } = github.context.repo;
 
-    console.log(github.context.eventName);
-
     switch (github.context.eventName) {
-      case 'pull_request':
+      case 'pull_request': {
         const pull_number = github.context.issue.number;
         const {
           data: { body },
@@ -220,8 +218,9 @@ async function main(): Promise<void> {
           quiet === 'true',
         );
         break;
+      }
 
-      case 'scheduled':
+      case 'scheduled': {
         // Iterate over all open issues and pull requests
         for await (const page of octokit.paginate.iterator(
           octokit.issues.listForRepo,
@@ -245,8 +244,11 @@ async function main(): Promise<void> {
           }
         }
         break;
-      default:
+      }
+
+      default: {
         return;
+      }
     }
   } catch (error) {
     core.setFailed(error.message);
