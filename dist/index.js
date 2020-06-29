@@ -2305,6 +2305,57 @@ module.exports.MaxBufferError = MaxBufferError;
 
 /***/ }),
 
+/***/ 163:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.validateEnum = exports.formatStrArray = void 0;
+/**
+ * Format a string array into a list
+ * @param strArray string array
+ * @returns string that represents a list
+ *
+ * @example
+ * > toListStr(['a', 'b'])
+ * - a
+ * - b
+ */
+function formatStrArray(strArray) {
+    if (strArray.length === 0) {
+        return '';
+    }
+    return strArray.map(s => `- ${s}`).join('\n') + '\n';
+}
+exports.formatStrArray = formatStrArray;
+/**
+ * Validate an enum value
+ * @param name name of the variable to check
+ * @param val value to check
+ * @param enumObj enum object
+ *
+ * @example
+ * > enum CD {
+ *   C = 'c',
+ *   D = 'd',
+ * }
+ * > validateEnums('a', 'b', CD)
+ * Uncaught Error: `a` must be one of ['c', 'd'], but got 'b'
+ */
+function validateEnum(name, val, enumObj) {
+    const values = Object.values(enumObj);
+    if (!values.includes(val)) {
+        const wrap = (s) => `'${s}'`;
+        const joined = values.map(wrap).join(', ');
+        throw new Error(`\`${name}\` must be one of [${joined}], but got ${wrap(val)}`);
+    }
+}
+exports.validateEnum = validateEnum;
+
+
+/***/ }),
+
 /***/ 168:
 /***/ (function(module) {
 
@@ -2443,10 +2494,11 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
     function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateEnum = exports.formatStrArray = exports.getChecked = exports.getName = exports.extractLabels = void 0;
+exports.getChecked = exports.getName = exports.extractLabels = void 0;
 const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
 const enums_1 = __webpack_require__(346);
+const utils_1 = __webpack_require__(163);
 const logger_1 = __webpack_require__(504);
 /**
  * Extract labels from the description of an issue or a pull request
@@ -2499,46 +2551,6 @@ function getChecked({ checked }) {
     return checked;
 }
 exports.getChecked = getChecked;
-/**
- * Format a string array into a list
- * @param strArray string array
- * @returns string that represents a list
- *
- * @example
- * > toListStr(['a', 'b'])
- * - a
- * - b
- */
-function formatStrArray(strArray) {
-    if (strArray.length === 0) {
-        return '';
-    }
-    return strArray.map(s => `- ${s}`).join('\n') + '\n';
-}
-exports.formatStrArray = formatStrArray;
-/**
- * Validate an enum value
- * @param name name of the variable to check
- * @param val value to check
- * @param enumObj enum object
- *
- * @example
- * > enum CD {
- *   C = 'c',
- *   D = 'd',
- * }
- * > validateEnums('a', 'b', CD)
- * Uncaught Error: `a` must be one of ['c', 'd'], but got 'b'
- */
-function validateEnum(name, val, enumObj) {
-    const values = Object.values(enumObj);
-    if (!values.includes(val)) {
-        const wrap = (s) => `'${s}'`;
-        const joined = values.map(wrap).join(', ');
-        throw new Error(`\`${name}\` must be one of [${joined}], but got ${wrap(val)}`);
-    }
-}
-exports.validateEnum = validateEnum;
 function processLabels(octokit, repo, owner, issue_number, description, labelPattern, logger) {
     return __awaiter(this, void 0, void 0, function* () {
         logger.debug(`<<< ${issue_number} >>>`);
@@ -2564,12 +2576,12 @@ function processLabels(octokit, repo, owner, issue_number, description, labelPat
             return;
         }
         logger.debug('Checked labels:');
-        logger.debug(formatStrArray(labels.filter(getChecked).map(getName)));
+        logger.debug(utils_1.formatStrArray(labels.filter(getChecked).map(getName)));
         // Remove unchecked labels
         const shouldRemove = ({ name, checked }) => !checked && labelsOnIssue.includes(name);
         const labelsToRemove = labels.filter(shouldRemove).map(getName);
         logger.debug('Labels to remove:');
-        logger.debug(formatStrArray(labelsToRemove));
+        logger.debug(utils_1.formatStrArray(labelsToRemove));
         if (labelsToRemove.length > 0) {
             labelsToRemove.forEach((name) => __awaiter(this, void 0, void 0, function* () {
                 yield octokit.issues.removeLabel({
@@ -2584,7 +2596,7 @@ function processLabels(octokit, repo, owner, issue_number, description, labelPat
         const shouldAdd = ({ name, checked }) => checked && !labelsOnIssue.includes(name);
         const labelsToAdd = labels.filter(shouldAdd).map(getName);
         logger.debug('Labels to add:');
-        logger.debug(formatStrArray(labelsToAdd));
+        logger.debug(utils_1.formatStrArray(labelsToAdd));
         if (labelsToAdd.length > 0) {
             yield octokit.issues.addLabels({
                 owner,
@@ -2602,7 +2614,7 @@ function main() {
             const token = core.getInput('repo-token', { required: true });
             const labelPattern = core.getInput('label-pattern', { required: true });
             const quiet = core.getInput('quiet', { required: true });
-            validateEnum('quiet', quiet, enums_1.Quiet);
+            utils_1.validateEnum('quiet', quiet, enums_1.Quiet);
             const logger = new logger_1.Logger(quiet === enums_1.Quiet.TRUE ? logger_1.LoggingLevel.SILENT : logger_1.LoggingLevel.DEBUG);
             const octokit = github.getOctokit(token);
             const { repo, owner } = github.context.repo;
