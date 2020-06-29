@@ -52,11 +52,12 @@ jobs:
   labeling:
     needs: [lint, test]
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
-      - run: echo ${{ toJson(github) }}
+
       - uses: ./
-        if: ${{ github.context.action == 'opened' || github.context.action == 'edited' }}
+        if: ${{ github.event.action == 'opened' || github.event.action == 'edited' }}
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           label-pattern: '- \[(.*?)\] ?`(.+?)`'
