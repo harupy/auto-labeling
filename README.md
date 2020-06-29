@@ -39,8 +39,22 @@ Then, `auto-labeling` removes `bug-fix` and adds `enhancement`. **Note that unre
 ```yml
 name: Auto Labeling
 
-# A GitHub token created on a forked PR does not have a write permission required to add labels.
-# To avoid this issue, use the `scheduled` event and run this action on a certain interval.
+on:
+  issues:
+    types:
+      # Trigger the action only on relevant activity types.
+      # It's actually not harmful to trigger the action on all activity types.
+      - opened
+      - edited
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+
+# A GitHub token created for a forked PR doesn't have a write permission required to add labels.
+# To avoid this issue, you can use the `scheduled` event and run this action on a certain interval.
 on:
   schedule:
     - cron: '*/10 * * * *'
@@ -54,7 +68,7 @@ jobs:
       - uses: harupy/auto-labeling@master
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          label-pattern: '- \\[(.*?)\\] ?`(.+?)`' # matches '- [x] `label`'
+          label-pattern: '- \[(.*?)\] ?`(.+?)`' # matches '- [x] `label`'
 ```
 
 ## Inputs
