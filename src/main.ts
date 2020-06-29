@@ -214,7 +214,7 @@ async function main(): Promise<void> {
 
         logger.debug(`<<< ${html_url} >>>`);
 
-        processLabels(repo, owner, issue_number, description);
+        await processLabels(repo, owner, issue_number, description);
       }
     }
   } catch (error) {
