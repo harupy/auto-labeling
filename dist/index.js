@@ -2557,10 +2557,9 @@ function processLabels(octokit, repo, owner, issue_number, description, labelPat
         });
         const labelsForRepo = labelsForRepoResp.data.map(getName);
         // Labels in the description
-        const labels = extractLabels(description, labelPattern).filter(({ name }) => {
-            console.log(name, labelsForRepo);
-            return labelsForRepo.includes(name);
-        });
+        const labels = extractLabels(description, labelPattern).filter(({ name }) => 
+        // Remove labels that are not registered in the repository
+        labelsForRepo.includes(name));
         logger.debug(labels);
         if (labels.length === 0) {
             logger.debug('No label found in the description');
@@ -2617,7 +2616,7 @@ function main() {
                         repo,
                         issue_number,
                     });
-                    console.log(body);
+                    console.log(body, labelPattern);
                     yield processLabels(octokit, repo, owner, issue_number, body, labelPattern, quiet === 'true');
                     break;
                 }

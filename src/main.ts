@@ -137,10 +137,7 @@ async function processLabels(
   // Labels in the description
   const labels = extractLabels(description, labelPattern).filter(({ name }) =>
     // Remove labels that are not registered in the repository
-    {
-      console.log(name, labelsForRepo);
-      return labelsForRepo.includes(name);
-    },
+    labelsForRepo.includes(name),
   );
 
   logger.debug(labels);
@@ -214,7 +211,7 @@ async function main(): Promise<void> {
           issue_number,
         });
 
-        console.log(body);
+        console.log(body, labelPattern);
         await processLabels(
           octokit,
           repo,
