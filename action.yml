@@ -12,12 +12,11 @@ inputs:
 
   label-pattern:
     description: >
-      "Pattern (regular expression) to extract label state and name (e.g. '- \\[(.*?)\\] ?`(.+?)`'). "
-      "Special characters (such as '/') must be properly escaped."
+      'Pattern (regular expression) to extract label state and name (e.g. "- \[(.*?)\] ?`(.+?)`").'
     required: true
 
   quiet:
-    description: "Suppress logging output. Must be either 'true' or 'false'"
+    description: 'Suppress logging output. Must be either "true" or "false"'
     required: false
     default: 'false'
 
