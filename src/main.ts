@@ -137,7 +137,10 @@ async function processLabels(
   // Labels in the description
   const labels = extractLabels(description, labelPattern).filter(({ name }) =>
     // Remove labels that are not registered in the repository
-    labelsForRepo.includes(name),
+    {
+      console.log(name, labelsForRepo);
+      return labelsForRepo.includes(name);
+    },
   );
 
   logger.debug(labels);
