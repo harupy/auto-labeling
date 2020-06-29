@@ -223,7 +223,7 @@ async function main(): Promise<void> {
         break;
       }
 
-      case 'scheduled': {
+      case 'schedule': {
         // Iterate over all open issues and pull requests
         for await (const page of octokit.paginate.iterator(
           octokit.issues.listForRepo,
