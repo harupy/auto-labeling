@@ -211,6 +211,7 @@ async function main(): Promise<void> {
           issue_number,
         });
 
+        console.log(body);
         await processLabels(
           octokit,
           repo,

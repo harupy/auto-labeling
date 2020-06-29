@@ -2616,6 +2616,7 @@ function main() {
                         repo,
                         issue_number,
                     });
+                    console.log(body);
                     yield processLabels(octokit, repo, owner, issue_number, body, labelPattern, quiet === 'true');
                     break;
                 }
