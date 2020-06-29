@@ -106,6 +106,85 @@ export function validateEnum<T>(
   }
 }
 
+async function processLabels(
+  octokit: ReturnType<typeof github.getOctokit>,
+  repo: string,
+  owner: string,
+  issue_number: number,
+  description: string,
+  labelPattern: string,
+  quiet: boolean,
+): Promise<void> {
+  const logger = new Logger(quiet ? LoggingLevel.SILENT : LoggingLevel.DEBUG);
+
+  logger.debug(`<<< ${issue_number} >>>`);
+
+  // Labels already attached on the pull request
+  const labelsOnIssueResp = await octokit.issues.listLabelsOnIssue({
+    owner,
+    repo,
+    issue_number,
+  });
+  const labelsOnIssue = labelsOnIssueResp.data.map(getName);
+
+  // Labels registered in the repository
+  const labelsForRepoResp = await octokit.issues.listLabelsForRepo({
+    owner,
+    repo,
+  });
+  const labelsForRepo = labelsForRepoResp.data.map(getName);
+
+  // Labels in the description
+  const labels = extractLabels(description, labelPattern).filter(({ name }) =>
+    // Remove labels that are not registered in the repository
+    labelsForRepo.includes(name),
+  );
+
+  if (labels.length === 0) {
+    logger.debug('No label found in the description');
+    return;
+  }
+
+  logger.debug('Checked labels:');
+  logger.debug(formatStrArray(labels.filter(getChecked).map(getName)));
+
+  // Remove unchecked labels
+  const shouldRemove = ({ name, checked }: Label): boolean =>
+    !checked && labelsOnIssue.includes(name);
+  const labelsToRemove = labels.filter(shouldRemove).map(getName);
+
+  logger.debug('Labels to remove:');
+  logger.debug(formatStrArray(labelsToRemove));
+
+  if (labelsToRemove.length > 0) {
+    labelsToRemove.forEach(async name => {
+      await octokit.issues.removeLabel({
+        owner,
+        repo,
+        issue_number,
+        name,
+      });
+    });
+  }
+
+  // Add checked labels
+  const shouldAdd = ({ name, checked }: Label): boolean =>
+    checked && !labelsOnIssue.includes(name);
+  const labelsToAdd = labels.filter(shouldAdd).map(getName);
+
+  logger.debug('Labels to add:');
+  logger.debug(formatStrArray(labelsToAdd));
+
+  if (labelsToAdd.length > 0) {
+    await octokit.issues.addLabels({
+      owner,
+      repo,
+      issue_number,
+      labels: labelsToAdd,
+    });
+  }
+}
+
 async function main(): Promise<void> {
   try {
     const token = core.getInput('repo-token', { required: true });
@@ -113,85 +192,12 @@ async function main(): Promise<void> {
     const quiet = core.getInput('quiet', { required: true });
 
     validateEnum('quiet', quiet, Quiet);
-    const logger = new Logger(
-      quiet === 'true' ? LoggingLevel.SILENT : LoggingLevel.DEBUG,
-    );
 
     const octokit = github.getOctokit(token);
+
     const { repo, owner } = github.context.repo;
 
-    async function processLabels(
-      repo: string,
-      owner: string,
-      issue_number: number,
-      description: string,
-    ): Promise<void> {
-      // Labels already attached on the pull request
-      const labelsOnIssueResp = await octokit.issues.listLabelsOnIssue({
-        owner,
-        repo,
-        issue_number,
-      });
-      const labelsOnIssue = labelsOnIssueResp.data.map(getName);
-
-      // Labels registered in the repository
-      const labelsForRepoResp = await octokit.issues.listLabelsForRepo({
-        owner,
-        repo,
-      });
-      const labelsForRepo = labelsForRepoResp.data.map(getName);
-
-      // Labels in the description
-      const labels = extractLabels(description, labelPattern).filter(
-        ({ name }) =>
-          // Remove labels that are not registered in the repository
-          labelsForRepo.includes(name),
-      );
-
-      if (labels.length === 0) {
-        logger.debug('No label found in the description');
-        return;
-      }
-
-      logger.debug('Checked labels:');
-      logger.debug(formatStrArray(labels.filter(getChecked).map(getName)));
-
-      // Remove unchecked labels
-      const shouldRemove = ({ name, checked }: Label): boolean =>
-        !checked && labelsOnIssue.includes(name);
-      const labelsToRemove = labels.filter(shouldRemove).map(getName);
-
-      logger.debug('Labels to remove:');
-      logger.debug(formatStrArray(labelsToRemove));
-
-      if (labelsToRemove.length > 0) {
-        labelsToRemove.forEach(async name => {
-          await octokit.issues.removeLabel({
-            owner,
-            repo,
-            issue_number,
-            name,
-          });
-        });
-      }
-
-      // Add checked labels
-      const shouldAdd = ({ name, checked }: Label): boolean =>
-        checked && !labelsOnIssue.includes(name);
-      const labelsToAdd = labels.filter(shouldAdd).map(getName);
-
-      logger.debug('Labels to add:');
-      logger.debug(formatStrArray(labelsToAdd));
-
-      if (labelsToAdd.length > 0) {
-        await octokit.issues.addLabels({
-          owner,
-          repo,
-          issue_number,
-          labels: labelsToAdd,
-        });
-      }
-    }
+    console.log(github.context.eventName);
 
     // Iterate over all open issues and pull requests
     for await (const page of octokit.paginate.iterator(
@@ -209,12 +215,17 @@ async function main(): Promise<void> {
         const {
           body: description,
           number: issue_number,
-          html_url,
         } = issue as types.IssuesGetResponseData;
 
-        logger.debug(`<<< ${html_url} >>>`);
-
-        await processLabels(repo, owner, issue_number, description);
+        await processLabels(
+          octokit,
+          repo,
+          owner,
+          issue_number,
+          description,
+          labelPattern,
+          quiet === 'true',
+        );
       }
     }
   } catch (error) {

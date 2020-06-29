@@ -2539,6 +2539,63 @@ function validateEnum(name, val, enumObj) {
     }
 }
 exports.validateEnum = validateEnum;
+function processLabels(octokit, repo, owner, issue_number, description, labelPattern, quiet) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const logger = new logger_1.Logger(quiet ? logger_1.LoggingLevel.SILENT : logger_1.LoggingLevel.DEBUG);
+        logger.debug(`<<< ${issue_number} >>>`);
+        // Labels already attached on the pull request
+        const labelsOnIssueResp = yield octokit.issues.listLabelsOnIssue({
+            owner,
+            repo,
+            issue_number,
+        });
+        const labelsOnIssue = labelsOnIssueResp.data.map(getName);
+        // Labels registered in the repository
+        const labelsForRepoResp = yield octokit.issues.listLabelsForRepo({
+            owner,
+            repo,
+        });
+        const labelsForRepo = labelsForRepoResp.data.map(getName);
+        // Labels in the description
+        const labels = extractLabels(description, labelPattern).filter(({ name }) => 
+        // Remove labels that are not registered in the repository
+        labelsForRepo.includes(name));
+        if (labels.length === 0) {
+            logger.debug('No label found in the description');
+            return;
+        }
+        logger.debug('Checked labels:');
+        logger.debug(formatStrArray(labels.filter(getChecked).map(getName)));
+        // Remove unchecked labels
+        const shouldRemove = ({ name, checked }) => !checked && labelsOnIssue.includes(name);
+        const labelsToRemove = labels.filter(shouldRemove).map(getName);
+        logger.debug('Labels to remove:');
+        logger.debug(formatStrArray(labelsToRemove));
+        if (labelsToRemove.length > 0) {
+            labelsToRemove.forEach((name) => __awaiter(this, void 0, void 0, function* () {
+                yield octokit.issues.removeLabel({
+                    owner,
+                    repo,
+                    issue_number,
+                    name,
+                });
+            }));
+        }
+        // Add checked labels
+        const shouldAdd = ({ name, checked }) => checked && !labelsOnIssue.includes(name);
+        const labelsToAdd = labels.filter(shouldAdd).map(getName);
+        logger.debug('Labels to add:');
+        logger.debug(formatStrArray(labelsToAdd));
+        if (labelsToAdd.length > 0) {
+            yield octokit.issues.addLabels({
+                owner,
+                repo,
+                issue_number,
+                labels: labelsToAdd,
+            });
+        }
+    });
+}
 function main() {
     var e_1, _a;
     return __awaiter(this, void 0, void 0, function* () {
@@ -2547,64 +2604,9 @@ function main() {
             const labelPattern = core.getInput('label-pattern', { required: true });
             const quiet = core.getInput('quiet', { required: true });
             validateEnum('quiet', quiet, enums_1.Quiet);
-            const logger = new logger_1.Logger(quiet === 'true' ? logger_1.LoggingLevel.SILENT : logger_1.LoggingLevel.DEBUG);
             const octokit = github.getOctokit(token);
             const { repo, owner } = github.context.repo;
-            function processLabels(repo, owner, issue_number, description) {
-                return __awaiter(this, void 0, void 0, function* () {
-                    // Labels already attached on the pull request
-                    const labelsOnIssueResp = yield octokit.issues.listLabelsOnIssue({
-                        owner,
-                        repo,
-                        issue_number,
-                    });
-                    const labelsOnIssue = labelsOnIssueResp.data.map(getName);
-                    // Labels registered in the repository
-                    const labelsForRepoResp = yield octokit.issues.listLabelsForRepo({
-                        owner,
-                        repo,
-                    });
-                    const labelsForRepo = labelsForRepoResp.data.map(getName);
-                    // Labels in the description
-                    const labels = extractLabels(description, labelPattern).filter(({ name }) => 
-                    // Remove labels that are not registered in the repository
-                    labelsForRepo.includes(name));
-                    if (labels.length === 0) {
-                        logger.debug('No label found in the description');
-                        return;
-                    }
-                    logger.debug('Checked labels:');
-                    logger.debug(formatStrArray(labels.filter(getChecked).map(getName)));
-                    // Remove unchecked labels
-                    const shouldRemove = ({ name, checked }) => !checked && labelsOnIssue.includes(name);
-                    const labelsToRemove = labels.filter(shouldRemove).map(getName);
-                    logger.debug('Labels to remove:');
-                    logger.debug(formatStrArray(labelsToRemove));
-                    if (labelsToRemove.length > 0) {
-                        labelsToRemove.forEach((name) => __awaiter(this, void 0, void 0, function* () {
-                            yield octokit.issues.removeLabel({
-                                owner,
-                                repo,
-                                issue_number,
-                                name,
-                            });
-                        }));
-                    }
-                    // Add checked labels
-                    const shouldAdd = ({ name, checked }) => checked && !labelsOnIssue.includes(name);
-                    const labelsToAdd = labels.filter(shouldAdd).map(getName);
-                    logger.debug('Labels to add:');
-                    logger.debug(formatStrArray(labelsToAdd));
-                    if (labelsToAdd.length > 0) {
-                        yield octokit.issues.addLabels({
-                            owner,
-                            repo,
-                            issue_number,
-                            labels: labelsToAdd,
-                        });
-                    }
-                });
-            }
+            console.log(github.context.eventName);
             try {
                 // Iterate over all open issues and pull requests
                 for (var _b = __asyncValues(octokit.paginate.iterator(octokit.issues.listForRepo, { owner, repo })), _c; _c = yield _b.next(), !_c.done;) {
@@ -2616,9 +2618,8 @@ function main() {
                          * 2. Remove unchecked labels if they are already attached
                          * 3. Add checked labels if they are NOT attached
                          */
-                        const { body: description, number: issue_number, html_url, } = issue;
-                        logger.debug(`<<< ${html_url} >>>`);
-                        yield processLabels(repo, owner, issue_number, description);
+                        const { body: description, number: issue_number, } = issue;
+                        yield processLabels(octokit, repo, owner, issue_number, description, labelPattern, quiet === 'true');
                     }
                 }
             }
