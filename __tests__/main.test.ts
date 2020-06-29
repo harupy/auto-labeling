@@ -15,6 +15,7 @@ describe('main', (): void => {
       '- [ x] `d`: d]',
       '- [X] `e`: e]',
       '- [ X] `f`: f]',
+      '- [x] `bug-fix`',
     ].join('\n');
     const labelPattern = '- \\[([ xX]*)\\] ?`(.+?)`';
     expect(extractLabels(body, labelPattern)).toEqual([
@@ -24,6 +25,7 @@ describe('main', (): void => {
       { name: 'd', checked: true },
       { name: 'e', checked: true },
       { name: 'f', checked: true },
+      { name: 'bug-fix', checked: true },
     ]);
   });
 
