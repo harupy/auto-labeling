@@ -4,9 +4,8 @@ function testPatterns(
   pattern: string,
   testCases: { [key: string]: string[] },
 ): void {
-  const regexp = new RegExp(pattern);
-
   for (const [label, [state, name]] of Object.entries(testCases)) {
+    const regexp = new RegExp(pattern, 'g');
     const m = regexp.exec(label);
 
     if (m === null) {
@@ -63,7 +62,7 @@ describe('patterns', (): void => {
 
   it('double asterisk', (): void => {
     const testCases = {
-      '- [] **abc***': ['', 'abc'],
+      '- [] **abc**': ['', 'abc'],
       '- [ ] **abc**': [' ', 'abc'],
       '- [  ] **abc**': ['  ', 'abc'],
       '- [x] **abc**': ['x', 'abc'],
