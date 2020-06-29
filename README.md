@@ -42,7 +42,8 @@ name: Auto Labeling
 on:
   issues:
     types:
-      # Trigger this action on relevant activity types
+      # Trigger the action only on relevant activity types.
+      # It's actually not harmful to trigger the action on all activity types.
       - opened
       - edited
 
