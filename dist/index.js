@@ -2551,7 +2551,7 @@ function getChecked({ checked }) {
     return checked;
 }
 exports.getChecked = getChecked;
-function processLabels(octokit, repo, owner, issue_number, description, labelPattern, logger) {
+function processIssue(octokit, repo, owner, issue_number, description, labelPattern, logger) {
     return __awaiter(this, void 0, void 0, function* () {
         logger.debug(`<<< ${issue_number} >>>`);
         // Labels already attached on the pull request
@@ -2627,7 +2627,7 @@ function main() {
                         repo,
                         issue_number,
                     });
-                    yield processLabels(octokit, repo, owner, issue_number, body, labelPattern, logger);
+                    yield processIssue(octokit, repo, owner, issue_number, body, labelPattern, logger);
                     break;
                 }
                 case 'schedule': {
@@ -2637,7 +2637,7 @@ function main() {
                             const page = _c.value;
                             for (const issue of page.data) {
                                 const { body, number } = issue;
-                                yield processLabels(octokit, repo, owner, number, body, labelPattern, logger);
+                                yield processIssue(octokit, repo, owner, number, body, labelPattern, logger);
                             }
                         }
                     }

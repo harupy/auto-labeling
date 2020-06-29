@@ -62,7 +62,7 @@ export function getChecked({ checked }: { checked: boolean }): boolean {
   return checked;
 }
 
-async function processLabels(
+async function processIssue(
   octokit: ReturnType<typeof github.getOctokit>,
   repo: string,
   owner: string,
@@ -166,7 +166,7 @@ async function main(): Promise<void> {
           issue_number,
         });
 
-        await processLabels(
+        await processIssue(
           octokit,
           repo,
           owner,
@@ -187,7 +187,7 @@ async function main(): Promise<void> {
           for (const issue of page.data) {
             const { body, number } = issue as types.IssuesGetResponseData;
 
-            await processLabels(
+            await processIssue(
               octokit,
               repo,
               owner,
