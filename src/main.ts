@@ -133,6 +133,7 @@ async function processLabels(
     repo,
   });
   const labelsForRepo = labelsForRepoResp.data.map(getName);
+  console.log(labelsForRepo);
 
   // Labels in the description
   const labels = extractLabels(description, labelPattern).filter(({ name }) =>
