@@ -2539,9 +2539,8 @@ function validateEnum(name, val, enumObj) {
     }
 }
 exports.validateEnum = validateEnum;
-function processLabels(octokit, repo, owner, issue_number, description, labelPattern, quiet) {
+function processLabels(octokit, repo, owner, issue_number, description, labelPattern, logger) {
     return __awaiter(this, void 0, void 0, function* () {
-        const logger = new logger_1.Logger(quiet ? logger_1.LoggingLevel.SILENT : logger_1.LoggingLevel.DEBUG);
         logger.debug(`<<< ${issue_number} >>>`);
         // Labels already attached on the pull request
         const labelsOnIssueResp = yield octokit.issues.listLabelsOnIssue({
@@ -2604,6 +2603,7 @@ function main() {
             const labelPattern = core.getInput('label-pattern', { required: true });
             const quiet = core.getInput('quiet', { required: true });
             validateEnum('quiet', quiet, enums_1.Quiet);
+            const logger = new logger_1.Logger(quiet === enums_1.Quiet.TRUE ? logger_1.LoggingLevel.SILENT : logger_1.LoggingLevel.DEBUG);
             const octokit = github.getOctokit(token);
             const { repo, owner } = github.context.repo;
             switch (github.context.eventName) {
@@ -2615,7 +2615,7 @@ function main() {
                         repo,
                         issue_number,
                     });
-                    yield processLabels(octokit, repo, owner, issue_number, body, labelPattern, quiet === 'true');
+                    yield processLabels(octokit, repo, owner, issue_number, body, labelPattern, logger);
                     break;
                 }
                 case 'scheduled': {
@@ -2625,7 +2625,7 @@ function main() {
                             const page = _c.value;
                             for (const issue of page.data) {
                                 const { body, number } = issue;
-                                yield processLabels(octokit, repo, owner, number, body, labelPattern, quiet === 'true');
+                                yield processLabels(octokit, repo, owner, number, body, labelPattern, logger);
                             }
                         }
                     }
