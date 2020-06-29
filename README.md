@@ -39,8 +39,21 @@ Then, `auto-labeling` removes `bug-fix` and adds `enhancement`. **Note that unre
 ```yml
 name: Auto Labeling
 
-# A GitHub token created on a forked PR does not have a write permission required to add labels.
-# To avoid this issue, use the `scheduled` event and run this action on a certain interval.
+on:
+  issues:
+    types:
+      # Trigger this action on relevant activity types
+      - opened
+      - edited
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+
+# A GitHub token created on a forked PR doesn't have a write permission required to add labels.
+# To avoid this issue, you can use the `scheduled` event and run this action on a certain interval.
 on:
   schedule:
     - cron: '*/10 * * * *'
