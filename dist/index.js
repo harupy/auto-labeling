@@ -2607,28 +2607,32 @@ function main() {
             const octokit = github.getOctokit(token);
             const { repo, owner } = github.context.repo;
             console.log(github.context.eventName);
-            try {
-                // Iterate over all open issues and pull requests
-                for (var _b = __asyncValues(octokit.paginate.iterator(octokit.issues.listForRepo, { owner, repo })), _c; _c = yield _b.next(), !_c.done;) {
-                    const page = _c.value;
-                    for (const issue of page.data) {
-                        /**
-                         * For each issue and pull request, does the following:
-                         * 1. Extract labels from the description
-                         * 2. Remove unchecked labels if they are already attached
-                         * 3. Add checked labels if they are NOT attached
-                         */
-                        const { body: description, number: issue_number, } = issue;
-                        yield processLabels(octokit, repo, owner, issue_number, description, labelPattern, quiet === 'true');
+            switch (github.context.eventName) {
+                case 'pull_request':
+                    const pull_number = github.context.issue.number;
+                    const { data: { body }, } = yield octokit.pulls.get({
+                        owner,
+                        repo,
+                        pull_number,
+                    });
+                    yield processLabels(octokit, repo, owner, pull_number, body, labelPattern, quiet === 'true');
+                case 'scheduled': try {
+                    // Iterate over all open issues and pull requests
+                    for (var _b = __asyncValues(octokit.paginate.iterator(octokit.issues.listForRepo, { owner, repo })), _c; _c = yield _b.next(), !_c.done;) {
+                        const page = _c.value;
+                        for (const issue of page.data) {
+                            const { body, number: issue_number, } = issue;
+                            yield processLabels(octokit, repo, owner, issue_number, body, labelPattern, quiet === 'true');
+                        }
                     }
                 }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) yield _a.call(_b);
+                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                finally {
+                    try {
+                        if (_c && !_c.done && (_a = _b.return)) yield _a.call(_b);
+                    }
+                    finally { if (e_1) throw e_1.error; }
                 }
-                finally { if (e_1) throw e_1.error; }
             }
         }
         catch (error) {

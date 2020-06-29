@@ -199,34 +199,50 @@ async function main(): Promise<void> {
 
     console.log(github.context.eventName);
 
-    // Iterate over all open issues and pull requests
-    for await (const page of octokit.paginate.iterator(
-      octokit.issues.listForRepo,
-      { owner, repo },
-    )) {
-      for (const issue of page.data) {
-        /**
-         * For each issue and pull request, does the following:
-         * 1. Extract labels from the description
-         * 2. Remove unchecked labels if they are already attached
-         * 3. Add checked labels if they are NOT attached
-         */
-
+    switch (github.context.eventName) {
+      case 'pull_request':
+        const pull_number = github.context.issue.number;
         const {
-          body: description,
-          number: issue_number,
-        } = issue as types.IssuesGetResponseData;
+          data: { body },
+        } = await octokit.pulls.get({
+          owner,
+          repo,
+          pull_number,
+        });
 
         await processLabels(
           octokit,
           repo,
           owner,
-          issue_number,
-          description,
+          pull_number,
+          body,
           labelPattern,
           quiet === 'true',
         );
-      }
+
+      case 'scheduled':
+        // Iterate over all open issues and pull requests
+        for await (const page of octokit.paginate.iterator(
+          octokit.issues.listForRepo,
+          { owner, repo },
+        )) {
+          for (const issue of page.data) {
+            const {
+              body,
+              number: issue_number,
+            } = issue as types.IssuesGetResponseData;
+
+            await processLabels(
+              octokit,
+              repo,
+              owner,
+              issue_number,
+              body,
+              labelPattern,
+              quiet === 'true',
+            );
+          }
+        }
     }
   } catch (error) {
     core.setFailed(error.message);
