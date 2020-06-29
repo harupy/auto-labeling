@@ -2470,7 +2470,7 @@ function extractLabels(description, labelPattern) {
         }
         return labels;
     }
-    return helper(new RegExp(labelPattern, 'gm'));
+    return helper(new RegExp(labelPattern, 'g'));
 }
 exports.extractLabels = extractLabels;
 /**

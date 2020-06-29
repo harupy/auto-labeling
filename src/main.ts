@@ -31,7 +31,7 @@ export function extractLabels(
     }
     return labels;
   }
-  return helper(new RegExp(labelPattern, 'gm'));
+  return helper(new RegExp(labelPattern, 'g'));
 }
 
 /**
