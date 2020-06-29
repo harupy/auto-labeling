@@ -2560,6 +2560,7 @@ function processLabels(octokit, repo, owner, issue_number, description, labelPat
         const labels = extractLabels(description, labelPattern).filter(({ name }) => 
         // Remove labels that are not registered in the repository
         labelsForRepo.includes(name));
+        logger.debug(labels);
         if (labels.length === 0) {
             logger.debug('No label found in the description');
             return;

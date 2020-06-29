@@ -140,6 +140,8 @@ async function processLabels(
     labelsForRepo.includes(name),
   );
 
+  logger.debug(labels);
+
   if (labels.length === 0) {
     logger.debug('No label found in the description');
     return;
