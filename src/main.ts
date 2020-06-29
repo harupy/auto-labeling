@@ -114,10 +114,8 @@ async function processLabels(
   issue_number: number,
   description: string,
   labelPattern: string,
-  quiet: boolean,
+  logger: Logger,
 ): Promise<void> {
-  const logger = new Logger(quiet ? LoggingLevel.SILENT : LoggingLevel.DEBUG);
-
   logger.debug(`<<< ${issue_number} >>>`);
 
   // Labels already attached on the pull request
@@ -193,6 +191,9 @@ async function main(): Promise<void> {
     const quiet = core.getInput('quiet', { required: true });
 
     validateEnum('quiet', quiet, Quiet);
+    const logger = new Logger(
+      quiet === Quiet.TRUE ? LoggingLevel.SILENT : LoggingLevel.DEBUG,
+    );
 
     const octokit = github.getOctokit(token);
 
@@ -217,7 +218,7 @@ async function main(): Promise<void> {
           issue_number,
           body,
           labelPattern,
-          quiet === 'true',
+          logger,
         );
         break;
       }
@@ -238,7 +239,7 @@ async function main(): Promise<void> {
               number,
               body,
               labelPattern,
-              quiet === 'true',
+              logger,
             );
           }
         }
