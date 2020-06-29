@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: echo ${{ github.context.action }}
+      - run: echo ${{ toJson(github) }}
       - uses: ./
         if: ${{ github.context.action == 'opened' || github.context.action == 'edited' }}
         with:
