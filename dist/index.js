@@ -2463,6 +2463,7 @@ const logger_1 = __webpack_require__(504);
 function extractLabels(description, labelPattern) {
     function helper(regex, labels = []) {
         const res = regex.exec(description);
+        console.log(res);
         if (res) {
             const checked = res[1].trim().toLocaleLowerCase() === 'x';
             const name = res[2].trim();

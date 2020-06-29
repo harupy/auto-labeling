@@ -24,6 +24,7 @@ export function extractLabels(
 ): Label[] {
   function helper(regex: RegExp, labels: Label[] = []): Label[] {
     const res = regex.exec(description);
+    console.log(res);
     if (res) {
       const checked = res[1].trim().toLocaleLowerCase() === 'x';
       const name = res[2].trim();
