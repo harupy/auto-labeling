@@ -227,16 +227,13 @@ async function main(): Promise<void> {
           { owner, repo },
         )) {
           for (const issue of page.data) {
-            const {
-              body,
-              number: issue_number,
-            } = issue as types.IssuesGetResponseData;
+            const { body, number } = issue as types.IssuesGetResponseData;
 
             await processLabels(
               octokit,
               repo,
               owner,
-              issue_number,
+              number,
               body,
               labelPattern,
               quiet === 'true',

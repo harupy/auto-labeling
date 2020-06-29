@@ -2623,8 +2623,8 @@ function main() {
                         for (var _b = __asyncValues(octokit.paginate.iterator(octokit.issues.listForRepo, { owner, repo })), _c; _c = yield _b.next(), !_c.done;) {
                             const page = _c.value;
                             for (const issue of page.data) {
-                                const { body, number: issue_number, } = issue;
-                                yield processLabels(octokit, repo, owner, issue_number, body, labelPattern, quiet === 'true');
+                                const { body, number } = issue;
+                                yield processLabels(octokit, repo, owner, number, body, labelPattern, quiet === 'true');
                             }
                         }
                     }
