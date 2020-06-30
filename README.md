@@ -56,7 +56,7 @@ on:
 
 # A GitHub token created for a PR coming from a fork doesn't have
 # 'admin' or 'write' permission (which is required to add labels)
-# To avoid this issue, you can use the `scheduled` event and run 
+# To avoid this issue, you can use the `scheduled` event and run
 # this action on a certain interval.
 on:
   schedule:
