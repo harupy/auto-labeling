@@ -71,7 +71,6 @@ jobs:
             });
 
             const { permission } = permissionResp.data;
-            console.log(permission);
             core.setOutput('permission', permission);
 
       # To prevent an error, skip this step if the actor doesn't have 'admin' or 'write' permission
