@@ -75,7 +75,7 @@ jobs:
             const { permission } = permissionResp.data;
             core.setOutput('permission', permission);
 
-      # To prevent an error, skip this step if the actor doesn't have 'admin' or 'write' permission
+      # Only an actor with 'admin' or 'write' permission can run this step
       - uses: ./
         if: ${{ contains('admin,write', ${{ steps.check-permission.outputs.permission }}) }}
         with:
