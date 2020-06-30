@@ -77,7 +77,7 @@ jobs:
 
       # This step requires 'admin' or 'write' permission (otherwise it fails)
       - uses: ./
-        if: ${{ contains('admin,write', ${{ steps.check-permission.outputs.permission }}) }}
+        if: ${{ contains('admin,write', steps.check-permission.outputs.permission) }}
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           label-pattern: '- \[(.*?)\] ?`(.+?)`'
