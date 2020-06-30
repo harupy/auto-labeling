@@ -2,8 +2,8 @@ import { formatStrArray, validateEnum } from '../src/utils';
 
 describe('utils', () => {
   it(formatStrArray.name, () => {
-    expect(formatStrArray(['a', 'b', 'c'])).toEqual('- a\n- b\n- c\n');
-    expect(formatStrArray([])).toEqual('');
+    expect(formatStrArray(['a', 'b', 'c'])).toBe('- a\n- b\n- c\n');
+    expect(formatStrArray([])).toBe('');
   });
 
   it(validateEnum.name, () => {

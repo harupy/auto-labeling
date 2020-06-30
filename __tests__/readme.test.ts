@@ -28,6 +28,6 @@ describe('README.md', (): void => {
       /(inputs.+?)\s+runs/s,
     ).trim();
 
-    expect(inputsReadme).toEqual(inputsActionYml);
+    expect(inputsReadme).toBe(inputsActionYml);
   });
 });

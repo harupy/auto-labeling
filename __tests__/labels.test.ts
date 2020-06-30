@@ -22,10 +22,10 @@ describe('labels', (): void => {
   });
 
   it(getName.name, (): void => {
-    expect(getName({ name: 'a' })).toEqual('a');
+    expect(getName({ name: 'a' })).toBe('a');
   });
 
   it(getChecked.name, (): void => {
-    expect(getChecked({ checked: true })).toEqual(true);
+    expect(getChecked({ checked: true })).toBe(true);
   });
 });
