@@ -56,7 +56,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # Check the permission of the current actor and use it in the next step
+      # Check the permission of the current actor and set it as an output
+      # so the next step can use it
       - uses: actions/github-script@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -65,7 +66,7 @@ jobs:
 
             const permissionResp = await github.repos.getCollaboratorPermissionLevel({
               ...context.repo,
-              username: username
+              username: username,
             });
 
             const { permission } = permissionResp.data;
