@@ -64,7 +64,7 @@ jobs:
             // Based on: https://github.com/lannonbr/repo-permission-check-action
 
             const permissionResp = await github.repos.getCollaboratorPermissionLevel({
-              ...github.context.repo,
+              ...context.repo,
               username: username
             });
 
