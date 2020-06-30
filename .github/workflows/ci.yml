@@ -57,8 +57,9 @@ jobs:
       - uses: actions/checkout@v2
 
       # Check the permission of the current actor and set it as an output
-      # so the next step can use it
+      # so the later steps can use it
       - uses: actions/github-script@v2
+        id: check-permission
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -73,7 +74,9 @@ jobs:
             console.log(permission);
             core.setOutput('permission', permission);
 
+      # To prevent an error, skip this step if the actor doesn't have 'admin' or 'write' permission
       - uses: ./
+        if: ${{ contains('admin,write', ${{ steps.check-permission.outputs.permission }}) }}
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           label-pattern: '- \[(.*?)\] ?`(.+?)`'
