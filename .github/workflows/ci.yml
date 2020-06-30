@@ -75,7 +75,7 @@ jobs:
             const { permission } = permissionResp.data;
             core.setOutput('permission', permission);
 
-      # This step requires 'admin' or 'write' permission.
+      # This step requires 'admin' or 'write' permission
       - uses: ./
         if: ${{ contains('admin,write', steps.check-permission.outputs.permission) }}
         with:
