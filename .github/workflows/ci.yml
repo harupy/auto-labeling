@@ -17,7 +17,7 @@ jobs:
 
       - uses: actions/setup-node@v1
         with:
-          node-version: '12.x'
+          node-version: "12.x"
 
       - run: npm install
 
@@ -33,7 +33,7 @@ jobs:
 
       - uses: actions/setup-node@v1
         with:
-          node-version: '12.x'
+          node-version: "12.x"
 
       - run: npm install
 
@@ -56,21 +56,20 @@ jobs:
     steps:
       - uses: actions/github-script@v2
 
-      # Check the permission of the current actor and set it as an
+      # Check the permission of the current actor and use it in the next step
+      # Based on: https://github.com/lannonbr/repo-permission-check-action
       - uses: actions/checkout@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            // Based on: https://github.com/lannonbr/repo-permission-check-action
-
             const permissionResp = await github.repos.getCollaboratorPermissionLevel({
               ...github.context.repo,
               username: username
             });
 
             const { permission } = permissionResp.data;
-            console.log(permission)
-            core.setOutput("permission", permission)
+            console.log(permission);
+            core.setOutput('permission', permission);
 
       - uses: ./
         with:
