@@ -12,8 +12,8 @@ function testPatterns(
       throw new Error('No match found');
     }
 
-    expect(m[1]).toEqual(state);
-    expect(m[2]).toEqual(name);
+    expect(m[1]).toBe(state);
+    expect(m[2]).toBe(name);
   }
 }
 
