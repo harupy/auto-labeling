@@ -63,11 +63,10 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             // Based on: https://github.com/lannonbr/repo-permission-check-action
-            console.log(context);
-            console.log(github);
+
             const permissionResp = await github.repos.getCollaboratorPermissionLevel({
               ...context.repo,
-              username: username,
+              username: context.actor,
             });
 
             const { permission } = permissionResp.data;
