@@ -2573,7 +2573,8 @@ function main() {
         try {
             const token = core.getInput('github-token', { required: true });
             const labelPattern = core.getInput('label-pattern', { required: true });
-            const quiet = core.getInput('quiet', { required: true });
+            const quiet = core.getInput('quiet', { required: false });
+            const offset = core.getInput('offset', { required: false });
             utils_1.validateEnum('quiet', quiet, enums_1.Quiet);
             const logger = new logger_1.Logger(quiet === enums_1.Quiet.TRUE ? logger_1.LoggingLevel.SILENT : logger_1.LoggingLevel.DEBUG);
             const octokit = github.getOctokit(token);
@@ -2591,9 +2592,11 @@ function main() {
                     break;
                 }
                 case 'schedule': {
+                    const parsed = utils_1.parseOffsetString(offset);
+                    const offsetDate = utils_1.getOffsetDate(new Date(), ...parsed);
                     try {
                         // Iterate over all open issues and pull requests
-                        for (var _b = __asyncValues(octokit.paginate.iterator(octokit.issues.listForRepo, { owner, repo })), _c; _c = yield _b.next(), !_c.done;) {
+                        for (var _b = __asyncValues(octokit.paginate.iterator(octokit.issues.listForRepo, { owner, repo, since: offsetDate.toISOString() })), _c; _c = yield _b.next(), !_c.done;) {
                             const page = _c.value;
                             for (const issue of page.data) {
                                 const { body, number } = issue;
@@ -3064,12 +3067,18 @@ isStream.transform = function (stream) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Quiet = void 0;
+exports.OffsetUnits = exports.Quiet = void 0;
 var Quiet;
 (function (Quiet) {
     Quiet["TRUE"] = "true";
     Quiet["FALSE"] = "false";
 })(Quiet = exports.Quiet || (exports.Quiet = {}));
+var OffsetUnits;
+(function (OffsetUnits) {
+    OffsetUnits["MONTH"] = "M";
+    OffsetUnits["DAY"] = "D";
+    OffsetUnits["HOUR"] = "H";
+})(OffsetUnits = exports.OffsetUnits || (exports.OffsetUnits = {}));
 
 
 /***/ }),
@@ -6980,12 +6989,13 @@ module.exports = require("http");
 /***/ }),
 
 /***/ 611:
-/***/ (function(__unusedmodule, exports) {
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateEnum = exports.formatStrArray = void 0;
+exports.getOffsetDate = exports.parseOffsetString = exports.validateEnum = exports.formatStrArray = void 0;
+const enums_1 = __webpack_require__(346);
 /**
  * Format a string array into a list
  * @param strArray string array
@@ -7026,6 +7036,66 @@ function validateEnum(name, val, enumObj) {
     }
 }
 exports.validateEnum = validateEnum;
+/**
+ * Parse a offset string
+ * @param offset offset string (e.g. '1M')
+ * @returns [value, unit]
+ *
+ * @example
+ * > parseOffsetString('1M')
+ * [ 1, 'M' ]
+ */
+function parseOffsetString(offsetStr) {
+    const chars = Object.values(enums_1.OffsetUnits).join('');
+    const pattern = `^(\\d+)([${chars}])$`;
+    const m = new RegExp(pattern).exec(offsetStr);
+    if (m === null) {
+        throw Error(`"${offsetStr}" doesn't match "${pattern}"`);
+    }
+    const value = parseInt(m[1]);
+    const unit = m[2];
+    return [value, unit];
+}
+exports.parseOffsetString = parseOffsetString;
+/**
+ * Get a offset date
+ * @param date base date
+ * @param value time value
+ * @param unit time unit (must be one of ['H', 'D', 'M'])
+ * @returns offset date
+ *
+ * @example
+ * > const d = new Date('2020-10-10T10:10:10.000Z')
+ * > getOffsetDate(d, '1H').toISOString()
+ * '2020-10-10T09:10:10.000Z'
+ *
+ * > getOffsetDate(d, '1D').toISOString()
+ * '2020-10-09T10:10:10.000Z'
+ *
+ * > getOffsetDate(d, '1M').toISOString()
+ * '2020-09-10T10:10:10.000Z'
+ */
+function getOffsetDate(date, value, unit) {
+    const copied = new Date(date);
+    switch (unit) {
+        case enums_1.OffsetUnits.HOUR: {
+            copied.setHours(copied.getHours() - value);
+            return copied;
+        }
+        case enums_1.OffsetUnits.DAY: {
+            copied.setDate(copied.getDate() - value);
+            return copied;
+        }
+        case enums_1.OffsetUnits.MONTH: {
+            copied.setMonth(copied.getMonth() - value);
+            return copied;
+        }
+        default: {
+            throw Error('Should not reach here');
+        }
+    }
+}
+exports.getOffsetDate = getOffsetDate;
 
 
 /***/ }),
