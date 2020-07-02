@@ -12,8 +12,15 @@ inputs:
 
   label-pattern:
     description: >
-      'Pattern (regular expression) to extract label state and name (e.g. "- \[(.*?)\] ?`(.+?)`").'
+      Pattern (regular expression) to extract label states and names (e.g. '- \[(.*?)\] ?`(.+?)`').
     required: true
+
+  offset:
+    description: >
+      Only issues and pull requests updated at or after this offset (from the current time) will be labeled.
+      Required only when running this action on the schedule event.
+    required: false
+    default: '1M' # means one month
 
   quiet:
     description: 'Suppress logging output. Must be either "true" or "false"'
