@@ -87,7 +87,7 @@ async function processIssue(
 
 async function main(): Promise<void> {
   try {
-    const token = core.getInput('repo-token', { required: true });
+    const token = core.getInput('github-token', { required: true });
     const labelPattern = core.getInput('label-pattern', { required: true });
     const quiet = core.getInput('quiet', { required: true });
 

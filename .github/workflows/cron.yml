@@ -12,5 +12,5 @@ jobs:
       - run: echo ${{ github.actor }}
       - uses: ./
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           label-pattern: '- \[(.*?)\] ?`(.+?)`'
