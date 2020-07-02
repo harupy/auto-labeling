@@ -3075,9 +3075,9 @@ var Quiet;
 })(Quiet = exports.Quiet || (exports.Quiet = {}));
 var OffsetUnits;
 (function (OffsetUnits) {
-    OffsetUnits["MONTH"] = "M";
-    OffsetUnits["DAY"] = "D";
     OffsetUnits["HOUR"] = "H";
+    OffsetUnits["DAY"] = "d";
+    OffsetUnits["MONTH"] = "m";
 })(OffsetUnits = exports.OffsetUnits || (exports.OffsetUnits = {}));
 
 

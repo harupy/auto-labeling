@@ -52,6 +52,9 @@ jobs:
   labeling:
     needs: [lint, test]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        offset: ['1H', '1d', '1m']
 
     steps:
       - uses: actions/checkout@v2
@@ -81,4 +84,4 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           label-pattern: '- \[(.*?)\] ?`(.+?)`'
-          offset: '1M'
+          offset: ${{ matrix.offset }}

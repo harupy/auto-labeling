@@ -29,14 +29,15 @@ describe('utils', () => {
   });
 
   it(parseOffsetString.name, () => {
-    expect(parseOffsetString('1M')).toEqual([1, 'M']);
-    expect(parseOffsetString('12M')).toEqual([12, 'M']);
+    expect(parseOffsetString('1m')).toEqual([1, 'm']);
+    expect(parseOffsetString('12m')).toEqual([12, 'm']);
 
-    expect(() => parseOffsetString('M')).toThrow(Error);
+    expect(() => parseOffsetString('m')).toThrow(Error);
+    expect(() => parseOffsetString('1b')).toThrow(Error);
     expect(() => parseOffsetString('12')).toThrow(Error);
-    expect(() => parseOffsetString('1MM')).toThrow(Error);
-    expect(() => parseOffsetString('M1M')).toThrow(Error);
-    expect(() => parseOffsetString('1M1')).toThrow(Error);
+    expect(() => parseOffsetString('1mm')).toThrow(Error);
+    expect(() => parseOffsetString('m1m')).toThrow(Error);
+    expect(() => parseOffsetString('1m1')).toThrow(Error);
   });
 
   it(getOffsetDate.name, () => {

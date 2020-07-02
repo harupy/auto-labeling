@@ -4,7 +4,7 @@ export enum Quiet {
 }
 
 export enum OffsetUnits {
-  MONTH = 'M',
-  DAY = 'D',
   HOUR = 'H',
+  DAY = 'd',
+  MONTH = 'm',
 }
