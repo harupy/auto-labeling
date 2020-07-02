@@ -4,7 +4,12 @@ import * as types from '@octokit/types';
 
 import { Label } from './types';
 import { Quiet } from './enums';
-import { formatStrArray, validateEnum } from './utils';
+import {
+  formatStrArray,
+  validateEnum,
+  parseOffsetString,
+  getOffsetDate,
+} from './utils';
 import { extractLabels, getName, getChecked } from './labels';
 import { Logger, LoggingLevel } from './logger';
 
@@ -89,7 +94,8 @@ async function main(): Promise<void> {
   try {
     const token = core.getInput('github-token', { required: true });
     const labelPattern = core.getInput('label-pattern', { required: true });
-    const quiet = core.getInput('quiet', { required: true });
+    const quiet = core.getInput('quiet', { required: false });
+    const offset = core.getInput('offset', { required: false });
 
     validateEnum('quiet', quiet, Quiet);
     const logger = new Logger(
@@ -125,10 +131,13 @@ async function main(): Promise<void> {
       }
 
       case 'schedule': {
+        const parsed = parseOffsetString(offset);
+        const offsetDate = getOffsetDate(new Date(), ...parsed);
+
         // Iterate over all open issues and pull requests
         for await (const page of octokit.paginate.iterator(
           octokit.issues.listForRepo,
-          { owner, repo },
+          { owner, repo, since: offsetDate.toISOString() },
         )) {
           for (const issue of page.data) {
             const { body, number } = issue as types.IssuesGetResponseData;

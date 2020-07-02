@@ -81,3 +81,4 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           label-pattern: '- \[(.*?)\] ?`(.+?)`'
+          offset: '1M'
