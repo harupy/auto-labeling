@@ -2571,7 +2571,7 @@ function main() {
     var e_1, _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const token = core.getInput('repo-token', { required: true });
+            const token = core.getInput('github-token', { required: true });
             const labelPattern = core.getInput('label-pattern', { required: true });
             const quiet = core.getInput('quiet', { required: true });
             utils_1.validateEnum('quiet', quiet, enums_1.Quiet);

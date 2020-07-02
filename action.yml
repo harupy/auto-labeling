@@ -6,7 +6,7 @@ branding:
   icon: 'tag'
 
 inputs:
-  repo-token:
+  github-token:
     description: 'GitHub token'
     required: true
 

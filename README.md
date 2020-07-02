@@ -70,7 +70,7 @@ jobs:
 
       - uses: harupy/auto-labeling@master
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           label-pattern: '- \[(.*?)\] ?`(.+?)`' # matches '- [x] `label`'
 ```
 
@@ -78,7 +78,7 @@ jobs:
 
 ```yml
 inputs:
-  repo-token:
+  github-token:
     description: 'GitHub token'
     required: true
 

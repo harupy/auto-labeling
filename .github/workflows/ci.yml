@@ -79,5 +79,5 @@ jobs:
       - uses: ./
         if: ${{ contains('admin,write', steps.check-permission.outputs.permission) }}
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           label-pattern: '- \[(.*?)\] ?`(.+?)`'
