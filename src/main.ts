@@ -23,7 +23,7 @@ async function processIssue(
   labelPattern: string,
   logger: Logger,
 ): Promise<void> {
-  logger.debug(`< ${html_url} >`);
+  logger.debug(`### ${html_url} ###`);
 
   // Labels already attached on the pull request
   const labelsOnIssueResp = await octokit.issues.listLabelsOnIssue({

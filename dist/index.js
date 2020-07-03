@@ -2513,7 +2513,7 @@ const labels_1 = __webpack_require__(66);
 const logger_1 = __webpack_require__(504);
 function processIssue(octokit, repo, owner, issue_number, html_url, description, labelPattern, logger) {
     return __awaiter(this, void 0, void 0, function* () {
-        logger.debug(`< ${html_url} >`);
+        logger.debug(`### ${html_url} ###`);
         // Labels already attached on the pull request
         const labelsOnIssueResp = yield octokit.issues.listLabelsOnIssue({
             owner,
