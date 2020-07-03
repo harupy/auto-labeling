@@ -18,11 +18,12 @@ async function processIssue(
   repo: string,
   owner: string,
   issue_number: number,
+  html_url: string,
   description: string,
   labelPattern: string,
   logger: Logger,
 ): Promise<void> {
-  logger.debug(`<<< ${issue_number} >>>`);
+  logger.debug(`< ${html_url} >`);
 
   // Labels already attached on the pull request
   const labelsOnIssueResp = await octokit.issues.listLabelsOnIssue({
@@ -110,19 +111,19 @@ async function main(): Promise<void> {
       case 'issues':
       case 'pull_request': {
         const issue_number = github.context.issue.number;
-        const {
-          data: { body },
-        } = await octokit.issues.get({
+        const issueResp = await octokit.issues.get({
           owner,
           repo,
           issue_number,
         });
+        const { body, html_url } = issueResp.data;
 
         await processIssue(
           octokit,
           repo,
           owner,
           issue_number,
+          html_url,
           body,
           labelPattern,
           logger,
@@ -140,13 +141,18 @@ async function main(): Promise<void> {
           { owner, repo, since: offsetDate.toISOString() },
         )) {
           for (const issue of page.data) {
-            const { body, number } = issue as types.IssuesGetResponseData;
+            const {
+              body,
+              number,
+              html_url,
+            } = issue as types.IssuesGetResponseData;
 
             await processIssue(
               octokit,
               repo,
               owner,
               number,
+              html_url,
               body,
               labelPattern,
               logger,

@@ -2511,9 +2511,9 @@ const enums_1 = __webpack_require__(346);
 const utils_1 = __webpack_require__(611);
 const labels_1 = __webpack_require__(66);
 const logger_1 = __webpack_require__(504);
-function processIssue(octokit, repo, owner, issue_number, description, labelPattern, logger) {
+function processIssue(octokit, repo, owner, issue_number, html_url, description, labelPattern, logger) {
     return __awaiter(this, void 0, void 0, function* () {
-        logger.debug(`<<< ${issue_number} >>>`);
+        logger.debug(`< ${html_url} >`);
         // Labels already attached on the pull request
         const labelsOnIssueResp = yield octokit.issues.listLabelsOnIssue({
             owner,
@@ -2583,12 +2583,13 @@ function main() {
                 case 'issues':
                 case 'pull_request': {
                     const issue_number = github.context.issue.number;
-                    const { data: { body }, } = yield octokit.issues.get({
+                    const issueResp = yield octokit.issues.get({
                         owner,
                         repo,
                         issue_number,
                     });
-                    yield processIssue(octokit, repo, owner, issue_number, body, labelPattern, logger);
+                    const { body, html_url } = issueResp.data;
+                    yield processIssue(octokit, repo, owner, issue_number, html_url, body, labelPattern, logger);
                     break;
                 }
                 case 'schedule': {
@@ -2599,8 +2600,8 @@ function main() {
                         for (var _b = __asyncValues(octokit.paginate.iterator(octokit.issues.listForRepo, { owner, repo, since: offsetDate.toISOString() })), _c; _c = yield _b.next(), !_c.done;) {
                             const page = _c.value;
                             for (const issue of page.data) {
-                                const { body, number } = issue;
-                                yield processIssue(octokit, repo, owner, number, body, labelPattern, logger);
+                                const { body, number, html_url, } = issue;
+                                yield processIssue(octokit, repo, owner, number, html_url, body, labelPattern, logger);
                             }
                         }
                     }
