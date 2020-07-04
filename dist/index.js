@@ -2579,7 +2579,8 @@ function main() {
             const logger = new logger_1.Logger(quiet === enums_1.Quiet.TRUE ? logger_1.LoggingLevel.SILENT : logger_1.LoggingLevel.DEBUG);
             const octokit = github.getOctokit(token);
             const { repo, owner } = github.context.repo;
-            switch (github.context.eventName) {
+            const { eventName } = github.context;
+            switch (eventName) {
                 case 'issues':
                 case 'pull_request': {
                     const issue_number = github.context.issue.number;
@@ -2615,7 +2616,7 @@ function main() {
                     break;
                 }
                 default: {
-                    return;
+                    throw Error(`${eventName} event is not supported`);
                 }
             }
         }
