@@ -106,8 +106,9 @@ async function main(): Promise<void> {
     const octokit = github.getOctokit(token);
 
     const { repo, owner } = github.context.repo;
+    const { eventName } = github.context;
 
-    switch (github.context.eventName) {
+    switch (eventName) {
       case 'issues':
       case 'pull_request': {
         const issue_number = github.context.issue.number;
@@ -163,7 +164,7 @@ async function main(): Promise<void> {
       }
 
       default: {
-        return;
+        throw Error(`${eventName} event is not supported`);
       }
     }
   } catch (error) {
