@@ -96,7 +96,8 @@ inputs:
     default: '1m' # means one month
 
   quiet:
-    description: 'Suppress logging output. Must be either "true" or "false"'
+    description: >
+      Suppress logging output. Must be either "true" or "false"
     required: false
     default: 'false'
 ```
