@@ -2616,7 +2616,7 @@ function main() {
                     break;
                 }
                 default: {
-                    throw Error(`${eventName} event is not supported`);
+                    return;
                 }
             }
         }

@@ -164,7 +164,7 @@ async function main(): Promise<void> {
       }
 
       default: {
-        throw Error(`${eventName} event is not supported`);
+        return;
       }
     }
   } catch (error) {
