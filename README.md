@@ -3,6 +3,7 @@
 [![CI](https://github.com/harupy/auto-labeling/workflows/CI/badge.svg)](https://github.com/harupy/auto-labeling/actions?query=workflow%3ACI)
 [![Cron](https://github.com/harupy/auto-labeling/workflows/Cron/badge.svg)](https://github.com/harupy/auto-labeling/actions?query=workflow%3ACron)
 [![Issues](https://github.com/harupy/auto-labeling/workflows/Issues/badge.svg)](https://github.com/harupy/auto-labeling/actions?query=workflow%3AIssues)
+[![codecov](https://codecov.io/gh/harupy/auto-labeling/branch/master/graph/badge.svg)](https://codecov.io/gh/harupy/auto-labeling)
 [![GitHub marketplace](https://img.shields.io/badge/marketplace-auto--labeling-brightgreen?logo=github)](https://github.com/marketplace/actions/auto-labeling)
 
 A GitHub Action that automates labeling on issues and pull requests.
