@@ -2598,7 +2598,7 @@ function main() {
                     const offsetDate = utils_1.getOffsetDate(new Date(), ...parsed);
                     try {
                         // Iterate over all open issues and pull requests
-                        for (var _b = __asyncValues(octokit.paginate.iterator(octokit.issues.listForRepo, { owner, repo, since: offsetDate.toISOString() })), _c; _c = yield _b.next(), !_c.done;) {
+                        for (var _b = __asyncValues(octokit.paginate.iterator(octokit.issues.listForRepo, { owner, repo, since: offsetDate.toISOString().split('.')[0] + 'Z' })), _c; _c = yield _b.next(), !_c.done;) {
                             const page = _c.value;
                             for (const issue of page.data) {
                                 const { body, number, html_url, } = issue;
