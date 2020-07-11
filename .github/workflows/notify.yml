@@ -1,0 +1,11 @@
+# Send a notification on Slack if the CI fails on the master branch.
+
+name: Notify
+
+on: status
+
+jobs:
+  doc-link:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "${{ toJson(github) }}"
