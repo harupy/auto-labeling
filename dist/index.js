@@ -2600,7 +2600,8 @@ function main() {
                         // Iterate over all open issues and pull requests
                         for (var _b = __asyncValues(octokit.paginate.iterator(octokit.issues.listForRepo, { owner, repo, since: offsetDate.toISOString() })), _c; _c = yield _b.next(), !_c.done;) {
                             const page = _c.value;
-                            logger.debug(octokit.rateLimit.get());
+                            const rateLimitResp = yield octokit.rateLimit.get();
+                            logger.debug(rateLimitResp.data);
                             for (const issue of page.data) {
                                 const { body, number, html_url, } = issue;
                                 yield processIssue(octokit, repo, owner, number, html_url, body, labelPattern, logger);

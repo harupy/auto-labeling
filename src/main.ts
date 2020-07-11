@@ -141,7 +141,9 @@ async function main(): Promise<void> {
           octokit.issues.listForRepo,
           { owner, repo, since: offsetDate.toISOString() },
         )) {
-          logger.debug(octokit.rateLimit.get());
+          const rateLimitResp = await octokit.rateLimit.get();
+          logger.debug(rateLimitResp.data);
+
           for (const issue of page.data) {
             const {
               body,
