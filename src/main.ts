@@ -25,13 +25,12 @@ async function processIssue(
 ): Promise<void> {
   logger.debug(`--- ${htmlUrl} ---`);
 
-  // Labels already attached on the pull request
-  const labelsOnIssueResp = await octokit.issues.listLabelsOnIssue({
-    owner,
-    repo,
-    issue_number,
-  });
-  const labelsOnIssue = labelsOnIssueResp.data.map(getName);
+  // Labels extracted from the description
+  const labels = extractLabels(description, labelPattern);
+  if (labels.length === 0) {
+    logger.debug('No labels found');
+    return;
+  }
 
   // Labels registered in the repository
   const labelsForRepoResp = await octokit.issues.listLabelsForRepo({
@@ -39,25 +38,32 @@ async function processIssue(
     repo,
   });
   const labelsForRepo = labelsForRepoResp.data.map(getName);
-
-  // Labels in the description
-  const labels = extractLabels(description, labelPattern).filter(({ name }) =>
-    // Remove labels that are not registered in the repository
+  const labelsRegistered = labels.filter(({ name }) =>
     labelsForRepo.includes(name),
   );
 
-  if (labels.length === 0) {
-    logger.debug('No registered label found in the description');
+  if (labelsRegistered.length === 0) {
+    logger.debug('No registered labels found');
     return;
   }
 
+  // Labels that are already applied on the issue
+  const labelsOnIssueResp = await octokit.issues.listLabelsOnIssue({
+    owner,
+    repo,
+    issue_number,
+  });
+  const labelsOnIssue = labelsOnIssueResp.data.map(getName);
+
   logger.debug('Checked labels:');
-  logger.debug(formatStrArray(labels.filter(getChecked).map(getName)));
+  logger.debug(
+    formatStrArray(labelsRegistered.filter(getChecked).map(getName)),
+  );
 
   // Remove unchecked labels
   const shouldRemove = ({ name, checked }: Label): boolean =>
     !checked && labelsOnIssue.includes(name);
-  const labelsToRemove = labels.filter(shouldRemove).map(getName);
+  const labelsToRemove = labelsRegistered.filter(shouldRemove).map(getName);
 
   logger.debug('Labels to remove:');
   logger.debug(formatStrArray(labelsToRemove));
@@ -76,7 +82,7 @@ async function processIssue(
   // Add checked labels
   const shouldAdd = ({ name, checked }: Label): boolean =>
     checked && !labelsOnIssue.includes(name);
-  const labelsToAdd = labels.filter(shouldAdd).map(getName);
+  const labelsToAdd = labelsRegistered.filter(shouldAdd).map(getName);
 
   logger.debug('Labels to add:');
   logger.debug(formatStrArray(labelsToAdd));
