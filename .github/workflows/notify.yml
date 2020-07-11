@@ -4,7 +4,7 @@ name: Notify
 
 on:
   status:
-  check_suite:
+  check_run:
     types:
       - completed
 
@@ -15,8 +15,8 @@ jobs:
     steps:
       - run: echo "${{ toJson(github) }}"
 
-  notify-check-suite:
+  notify-check-run:
     runs-on: ubuntu-latest
-    if: github.event_name == 'check_suite'
+    if: github.event_name == 'check_run'
     steps:
       - run: echo "${{ toJson(github) }}"
