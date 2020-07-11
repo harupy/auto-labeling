@@ -11,12 +11,12 @@ on:
 jobs:
   notify-status:
     runs-on: ubuntu-latest
-    if: github.event_name = 'status'
+    if: github.event_name == 'status'
     steps:
       - run: echo "${{ toJson(github) }}"
 
   notify-check-suite:
     runs-on: ubuntu-latest
-    if: github.event_name = 'check_suite'
+    if: github.event_name == 'check_suite'
     steps:
       - run: echo "${{ toJson(github) }}"
