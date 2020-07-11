@@ -2514,32 +2514,35 @@ const logger_1 = __webpack_require__(504);
 function processIssue(octokit, repo, owner, issue_number, htmlUrl, description, labelPattern, logger) {
     return __awaiter(this, void 0, void 0, function* () {
         logger.debug(`--- ${htmlUrl} ---`);
-        // Labels already attached on the pull request
-        const labelsOnIssueResp = yield octokit.issues.listLabelsOnIssue({
-            owner,
-            repo,
-            issue_number,
-        });
-        const labelsOnIssue = labelsOnIssueResp.data.map(labels_1.getName);
+        // Labels extracted from the description
+        const labels = labels_1.extractLabels(description, labelPattern);
+        if (labels.length === 0) {
+            logger.debug('No labels found');
+            return;
+        }
         // Labels registered in the repository
         const labelsForRepoResp = yield octokit.issues.listLabelsForRepo({
             owner,
             repo,
         });
         const labelsForRepo = labelsForRepoResp.data.map(labels_1.getName);
-        // Labels in the description
-        const labels = labels_1.extractLabels(description, labelPattern).filter(({ name }) => 
-        // Remove labels that are not registered in the repository
-        labelsForRepo.includes(name));
-        if (labels.length === 0) {
-            logger.debug('No registered label found in the description');
+        const labelsRegistered = labels.filter(({ name }) => labelsForRepo.includes(name));
+        if (labelsRegistered.length === 0) {
+            logger.debug('No registered labels found');
             return;
         }
+        // Labels that are already applied on the issue
+        const labelsOnIssueResp = yield octokit.issues.listLabelsOnIssue({
+            owner,
+            repo,
+            issue_number,
+        });
+        const labelsOnIssue = labelsOnIssueResp.data.map(labels_1.getName);
         logger.debug('Checked labels:');
-        logger.debug(utils_1.formatStrArray(labels.filter(labels_1.getChecked).map(labels_1.getName)));
+        logger.debug(utils_1.formatStrArray(labelsRegistered.filter(labels_1.getChecked).map(labels_1.getName)));
         // Remove unchecked labels
         const shouldRemove = ({ name, checked }) => !checked && labelsOnIssue.includes(name);
-        const labelsToRemove = labels.filter(shouldRemove).map(labels_1.getName);
+        const labelsToRemove = labelsRegistered.filter(shouldRemove).map(labels_1.getName);
         logger.debug('Labels to remove:');
         logger.debug(utils_1.formatStrArray(labelsToRemove));
         if (labelsToRemove.length > 0) {
@@ -2554,7 +2557,7 @@ function processIssue(octokit, repo, owner, issue_number, htmlUrl, description, 
         }
         // Add checked labels
         const shouldAdd = ({ name, checked }) => checked && !labelsOnIssue.includes(name);
-        const labelsToAdd = labels.filter(shouldAdd).map(labels_1.getName);
+        const labelsToAdd = labelsRegistered.filter(shouldAdd).map(labels_1.getName);
         logger.debug('Labels to add:');
         logger.debug(utils_1.formatStrArray(labelsToAdd));
         if (labelsToAdd.length > 0) {
