@@ -139,7 +139,7 @@ async function main(): Promise<void> {
         // Iterate over all open issues and pull requests
         for await (const page of octokit.paginate.iterator(
           octokit.issues.listForRepo,
-          { owner, repo, since: offsetDate.toISOString().split('.')[0] + 'Z' },
+          { owner, repo, since: offsetDate.toISOString() },
         )) {
           for (const issue of page.data) {
             const {
