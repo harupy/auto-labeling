@@ -33,18 +33,15 @@ async function processIssue(
   }
 
   // Labels registered in the repository
-  const labelsForRepoResp = await octokit.paginate(
+  const labelsForRepoData = await octokit.paginate(
     octokit.issues.listLabelsForRepo,
     {
-      owner: 'mlflow',
-      repo: 'mlflow',
+      owner,
+      repo,
     },
   );
-  logger.debug(labelsForRepoResp);
-  logger.debug(labelsForRepoResp.length);
 
-  throw Error();
-  const labelsForRepo = labelsForRepoResp.map(getName);
+  const labelsForRepo = labelsForRepoData.map(getName);
   const labelsRegistered = labels.filter(({ name }) =>
     labelsForRepo.includes(name),
   );
