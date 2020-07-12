@@ -2521,11 +2521,13 @@ function processIssue(octokit, repo, owner, issue_number, htmlUrl, description, 
             return;
         }
         // Labels registered in the repository
-        const labelsForRepoResp = yield octokit.issues.listLabelsForRepo({
-            owner,
-            repo,
+        const labelsForRepoResp = yield octokit.paginate(octokit.issues.listLabelsForRepo, {
+            owner: 'mlflow',
+            repo: 'mlflow',
         });
-        const labelsForRepo = labelsForRepoResp.data.map(labels_1.getName);
+        logger.debug(labelsForRepoResp);
+        throw Error();
+        const labelsForRepo = labelsForRepoResp.map(labels_1.getName);
         const labelsRegistered = labels.filter(({ name }) => labelsForRepo.includes(name));
         if (labelsRegistered.length === 0) {
             logger.debug('No registered labels found');
