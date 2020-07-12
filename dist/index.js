@@ -2521,11 +2521,11 @@ function processIssue(octokit, repo, owner, issue_number, htmlUrl, description, 
             return;
         }
         // Labels registered in the repository
-        const labelsForRepoResp = yield octokit.issues.listLabelsForRepo({
+        const labelsForRepoData = yield octokit.paginate(octokit.issues.listLabelsForRepo, {
             owner,
             repo,
         });
-        const labelsForRepo = labelsForRepoResp.data.map(labels_1.getName);
+        const labelsForRepo = labelsForRepoData.map(labels_1.getName);
         const labelsRegistered = labels.filter(({ name }) => labelsForRepo.includes(name));
         if (labelsRegistered.length === 0) {
             logger.debug('No registered labels found');

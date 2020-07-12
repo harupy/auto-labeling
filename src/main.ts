@@ -33,11 +33,15 @@ async function processIssue(
   }
 
   // Labels registered in the repository
-  const labelsForRepoResp = await octokit.issues.listLabelsForRepo({
-    owner,
-    repo,
-  });
-  const labelsForRepo = labelsForRepoResp.data.map(getName);
+  const labelsForRepoData = await octokit.paginate(
+    octokit.issues.listLabelsForRepo,
+    {
+      owner,
+      repo,
+    },
+  );
+
+  const labelsForRepo = labelsForRepoData.map(getName);
   const labelsRegistered = labels.filter(({ name }) =>
     labelsForRepo.includes(name),
   );
