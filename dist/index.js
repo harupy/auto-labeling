@@ -2526,6 +2526,7 @@ function processIssue(octokit, repo, owner, issue_number, htmlUrl, description, 
             repo: 'mlflow',
         });
         logger.debug(labelsForRepoResp);
+        logger.debug(labelsForRepoResp.length);
         throw Error();
         const labelsForRepo = labelsForRepoResp.map(labels_1.getName);
         const labelsRegistered = labels.filter(({ name }) => labelsForRepo.includes(name));

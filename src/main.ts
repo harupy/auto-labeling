@@ -41,6 +41,7 @@ async function processIssue(
     },
   );
   logger.debug(labelsForRepoResp);
+  logger.debug(labelsForRepoResp.length);
 
   throw Error();
   const labelsForRepo = labelsForRepoResp.map(getName);
