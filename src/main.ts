@@ -65,23 +65,23 @@ async function processIssue(
   );
 
   // Remove unchecked labels
-  const shouldRemove = ({ name, checked }: Label): boolean =>
-    !checked && labelsOnIssue.includes(name);
-  const labelsToRemove = labelsRegistered.filter(shouldRemove).map(getName);
+  // const shouldRemove = ({ name, checked }: Label): boolean =>
+  //   !checked && labelsOnIssue.includes(name);
+  // const labelsToRemove = labelsRegistered.filter(shouldRemove).map(getName);
 
-  logger.debug('Labels to remove:');
-  logger.debug(formatStrArray(labelsToRemove));
+  // logger.debug('Labels to remove:');
+  // logger.debug(formatStrArray(labelsToRemove));
 
-  if (labelsToRemove.length > 0) {
-    labelsToRemove.forEach(async name => {
-      await octokit.issues.removeLabel({
-        owner,
-        repo,
-        issue_number,
-        name,
-      });
-    });
-  }
+  // if (labelsToRemove.length > 0) {
+  //   labelsToRemove.forEach(async name => {
+  //     await octokit.issues.removeLabel({
+  //       owner,
+  //       repo,
+  //       issue_number,
+  //       name,
+  //     });
+  //   });
+  // }
 
   // Add checked labels
   const shouldAdd = ({ name, checked }: Label): boolean =>
