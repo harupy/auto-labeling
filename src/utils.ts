@@ -128,12 +128,12 @@ export function isLabelEvent(event: IssueEvent): boolean {
 }
 
 /**
- * Check if a given event is created by a github-actions bot
+ * Check if a given event is created by a user
  * @param event issue event
- * @returns true if `event` is created by a github-actions bot otherwise false
+ * @returns true if a given event is created by a user otherwise false
  */
-export function isCreatedByGitHubActions(event: IssueEvent): boolean {
-  return event.actor.login === 'github-actions[bot]';
+export function isCreatedByUser(event: IssueEvent): boolean {
+  return event.actor.type === 'User';
 }
 
 /**

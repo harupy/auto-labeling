@@ -4,19 +4,19 @@ import {
   parseOffsetString,
   getOffsetDate,
   isLabelEvent,
-  isCreatedByGitHubActions,
+  isCreatedByUser,
   removeDuplicates,
 } from '../src/utils';
 import { OffsetUnits } from '../src/enums';
 import { IssueEvent } from '../src/types';
 
-function createDummyIssueEvent(login: string, event: string): IssueEvent {
+function createDummyIssueEvent(userType: string, event: string): IssueEvent {
   return {
     id: 0,
     node_id: 'node_id',
     url: 'url',
     actor: {
-      login,
+      login: 'login',
       id: 0,
       node_id: 'node_id',
       avatar_url: 'avatar_url',
@@ -32,7 +32,7 @@ function createDummyIssueEvent(login: string, event: string): IssueEvent {
       repos_url: 'repos_url',
       events_url: 'events_url',
       received_events_url: 'received_events_url',
-      type: 'type',
+      type: userType,
       site_admin: false,
     },
     event,
@@ -99,24 +99,24 @@ describe('utils', () => {
   it(isLabelEvent.name, () => {
     let event: IssueEvent;
 
-    event = createDummyIssueEvent('user', 'labeled');
+    event = createDummyIssueEvent('User', 'labeled');
     expect(isLabelEvent(event)).toBe(true);
 
-    event = createDummyIssueEvent('user', 'unlabeled');
+    event = createDummyIssueEvent('User', 'unlabeled');
     expect(isLabelEvent(event)).toBe(true);
 
-    event = createDummyIssueEvent('user', 'closed');
+    event = createDummyIssueEvent('User', 'closed');
     expect(isLabelEvent(event)).toBe(false);
   });
 
-  it(isCreatedByGitHubActions.name, () => {
+  it(isCreatedByUser.name, () => {
     let event: IssueEvent;
 
-    event = createDummyIssueEvent('github-actions[bot]', 'labeled');
-    expect(isCreatedByGitHubActions(event)).toBe(true);
+    event = createDummyIssueEvent('User', 'labeled');
+    expect(isCreatedByUser(event)).toBe(true);
 
-    event = createDummyIssueEvent('me', 'labeled');
-    expect(isCreatedByGitHubActions(event)).toBe(false);
+    event = createDummyIssueEvent('Bot', 'labeled');
+    expect(isCreatedByUser(event)).toBe(false);
   });
 
   it(removeDuplicates.name, () => {
