@@ -71,7 +71,8 @@ async function processIssue(
 
   const labelsForRepo = labelsForRepoData.map(getName);
   const labelsToProcess = labels.filter(
-    ({ name }) => labelsForRepo.includes(name) && labelsToIgnore.includes(name),
+    ({ name }) =>
+      labelsForRepo.includes(name) && !labelsToIgnore.includes(name),
   );
 
   if (labelsToProcess.length === 0) {
