@@ -2,13 +2,16 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import * as types from '@octokit/types';
 
-import { Label } from './types';
+import { Label, IssueEvent } from './types';
 import { Quiet } from './enums';
 import {
   formatStrArray,
   validateEnum,
   parseOffsetString,
   getOffsetDate,
+  isLabelEvent,
+  isCreatedByGitHubActions,
+  removeDuplicates,
 } from './utils';
 import { extractLabels, getName, getChecked } from './labels';
 import { Logger, LoggingLevel } from './logger';
@@ -32,6 +35,28 @@ async function processIssue(
     return;
   }
 
+  octokit.issues.listEvents({
+    owner,
+    repo,
+    issue_number,
+  });
+
+  const listEventsData: IssueEvent[] = await octokit.paginate(
+    octokit.issues.listEvents,
+    {
+      owner,
+      repo,
+      issue_number,
+    },
+  );
+
+  // Labels added or removed by a user
+  const labelsToIgnore = removeDuplicates(
+    listEventsData
+      .filter(event => isLabelEvent(event) && !isCreatedByGitHubActions(event))
+      .map(({ label }) => label && label.name),
+  );
+
   // Labels registered in the repository
   const labelsForRepoData = await octokit.paginate(
     octokit.issues.listLabelsForRepo,
@@ -42,12 +67,12 @@ async function processIssue(
   );
 
   const labelsForRepo = labelsForRepoData.map(getName);
-  const labelsRegistered = labels.filter(({ name }) =>
-    labelsForRepo.includes(name),
+  const labelsToProcess = labels.filter(
+    ({ name }) => labelsForRepo.includes(name) && labelsToIgnore.includes(name),
   );
 
-  if (labelsRegistered.length === 0) {
-    logger.debug('No registered labels found');
+  if (labelsToProcess.length === 0) {
+    logger.debug('No labels to process');
     return;
   }
 
@@ -60,14 +85,12 @@ async function processIssue(
   const labelsOnIssue = labelsOnIssueResp.data.map(getName);
 
   logger.debug('Checked labels:');
-  logger.debug(
-    formatStrArray(labelsRegistered.filter(getChecked).map(getName)),
-  );
+  logger.debug(formatStrArray(labelsToProcess.filter(getChecked).map(getName)));
 
   // Remove unchecked labels
   // const shouldRemove = ({ name, checked }: Label): boolean =>
   //   !checked && labelsOnIssue.includes(name);
-  // const labelsToRemove = labelsRegistered.filter(shouldRemove).map(getName);
+  // const labelsToRemove = labelsToProcess.filter(shouldRemove).map(getName);
 
   // logger.debug('Labels to remove:');
   // logger.debug(formatStrArray(labelsToRemove));
@@ -86,7 +109,7 @@ async function processIssue(
   // Add checked labels
   const shouldAdd = ({ name, checked }: Label): boolean =>
     checked && !labelsOnIssue.includes(name);
-  const labelsToAdd = labelsRegistered.filter(shouldAdd).map(getName);
+  const labelsToAdd = labelsToProcess.filter(shouldAdd).map(getName);
 
   logger.debug('Labels to add:');
   logger.debug(formatStrArray(labelsToAdd));
