@@ -1,5 +1,5 @@
 import { OffsetUnits } from './enums';
-import { IssueEvent, Label } from './types';
+import { IssueEvent } from './types';
 
 /**
  * Format a string array into a list
