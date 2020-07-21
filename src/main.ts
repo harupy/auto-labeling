@@ -28,7 +28,7 @@ async function processIssue(
 ): Promise<void> {
   logger.debug(`--- ${htmlUrl} ---`);
 
-  // Labels extracted from the description
+  // Labels extracted from an issue description
   const labels = extractLabels(description, labelPattern);
   if (labels.length === 0) {
     logger.debug('No labels found');
@@ -50,14 +50,14 @@ async function processIssue(
     },
   );
 
-  // Labels added or removed by a user
+  // Labels added or removed by users
   const labelsToIgnore = removeDuplicates(
     listEventsData
       .filter(event => isLabelEvent(event) && !isCreatedByGitHubActions(event))
       .map(({ label }) => label && label.name),
   );
 
-  // Labels registered in the repository
+  // Labels registered in a repository
   const labelsForRepoData = await octokit.paginate(
     octokit.issues.listLabelsForRepo,
     {
@@ -76,7 +76,7 @@ async function processIssue(
     return;
   }
 
-  // Labels that are already applied on the issue
+  // Labels that are already applied on an issue
   const labelsOnIssueResp = await octokit.issues.listLabelsOnIssue({
     owner,
     repo,
@@ -87,7 +87,7 @@ async function processIssue(
   logger.debug('Checked labels:');
   logger.debug(formatStrArray(labelsToProcess.filter(getChecked).map(getName)));
 
-  // Remove unchecked labels
+  // Remove labels
   const shouldRemove = ({ name, checked }: Label): boolean =>
     !checked && labelsOnIssue.includes(name);
   const labelsToRemove = labelsToProcess.filter(shouldRemove).map(getName);
@@ -106,7 +106,7 @@ async function processIssue(
     });
   }
 
-  // Add checked labels
+  // Add labels
   const shouldAdd = ({ name, checked }: Label): boolean =>
     checked && !labelsOnIssue.includes(name);
   const labelsToAdd = labelsToProcess.filter(shouldAdd).map(getName);
@@ -169,7 +169,7 @@ async function main(): Promise<void> {
         const parsed = parseOffsetString(offset);
         const offsetDate = getOffsetDate(new Date(), ...parsed);
 
-        // Iterate over all open issues and pull requests
+        // Iterate through all open issues and pull requests
         for await (const page of octokit.paginate.iterator(
           octokit.issues.listForRepo,
           { owner, repo, since: offsetDate.toISOString() },
