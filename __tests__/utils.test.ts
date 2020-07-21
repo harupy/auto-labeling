@@ -10,7 +10,7 @@ import {
 import { OffsetUnits } from '../src/enums';
 import { IssueEvent } from '../src/types';
 
-function createDummyIssueEvent(userType: string, event: string): IssueEvent {
+function createDummyIssueEvent(actorType: string, event: string): IssueEvent {
   return {
     id: 0,
     node_id: 'node_id',
@@ -32,7 +32,7 @@ function createDummyIssueEvent(userType: string, event: string): IssueEvent {
       repos_url: 'repos_url',
       events_url: 'events_url',
       received_events_url: 'received_events_url',
-      type: userType,
+      type: actorType,
       site_admin: false,
     },
     event,
