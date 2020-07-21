@@ -1,5 +1,4 @@
 import {
-  formatLabel,
   formatStrArray,
   validateEnum,
   parseOffsetString,
@@ -48,15 +47,6 @@ function createDummyIssueEvent(login: string, event: string): IssueEvent {
 }
 
 describe('utils', () => {
-  it(formatLabel.name, () => {
-    expect(formatLabel({ name: 'foo', checked: true })).toBe(
-      "{ name: 'foo', checked: true }",
-    );
-    expect(formatLabel({ name: 'bar', checked: false })).toBe(
-      "{ name: 'bar', checked: false }",
-    );
-  });
-
   it(formatStrArray.name, () => {
     expect(formatStrArray(['a', 'b', 'c'])).toBe('- a\n- b\n- c\n');
     expect(formatStrArray([])).toBe('');

@@ -5,7 +5,6 @@ import * as types from '@octokit/types';
 import { Label, IssueEvent } from './types';
 import { Quiet } from './enums';
 import {
-  formatLabel,
   formatStrArray,
   validateEnum,
   parseOffsetString,
@@ -14,7 +13,7 @@ import {
   isCreatedByGitHubActions,
   removeDuplicates,
 } from './utils';
-import { extractLabels, getName, getChecked } from './labels';
+import { formatLabel, extractLabels, getName } from './labels';
 import { Logger, LoggingLevel } from './logger';
 
 async function processIssue(

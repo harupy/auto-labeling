@@ -2,15 +2,6 @@ import { OffsetUnits } from './enums';
 import { IssueEvent, Label } from './types';
 
 /**
- * Format a label into a string representation
- * @param label labels
- * @returns string representation of a given label
- */
-export function formatLabel(label: Label): string {
-  return `{ name: '${label.name}', checked: ${label.checked} }`;
-}
-
-/**
  * Format a string array into a list
  * @param strArray string array
  * @returns string that represents a list
