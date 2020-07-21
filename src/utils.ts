@@ -11,7 +11,7 @@ import { IssueEvent } from './types';
  * - a
  * - b
  */
-export function formatStrArray(strArray: string[]): string {
+export function formatStrArray(strArray: (string | undefined)[]): string {
   if (strArray.length === 0) {
     return '';
   }

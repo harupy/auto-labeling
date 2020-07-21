@@ -1,6 +1,15 @@
 import { Label } from './types';
 
 /**
+ * Format a label into a string representation
+ * @param label labels
+ * @returns string representation of a given label
+ */
+export function formatLabel(label: Label): string {
+  return `{ name: '${label.name}', checked: ${label.checked} }`;
+}
+
+/**
  * Extract labels from the description of an issue or a pull request
  * @param description string that contains labels
  * @param labelPattern regular expression to use to find labels

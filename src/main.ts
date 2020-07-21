@@ -13,7 +13,7 @@ import {
   isCreatedByGitHubActions,
   removeDuplicates,
 } from './utils';
-import { extractLabels, getName, getChecked } from './labels';
+import { formatLabel, extractLabels, getName } from './labels';
 import { Logger, LoggingLevel } from './logger';
 
 async function processIssue(
@@ -57,6 +57,9 @@ async function processIssue(
       .map(({ label }) => label && label.name),
   );
 
+  logger.debug('Labels to ignore:');
+  logger.debug(formatStrArray(labelsToIgnore));
+
   // Labels registered in a repository
   const labelsForRepoData = await octokit.paginate(
     octokit.issues.listLabelsForRepo,
@@ -84,8 +87,8 @@ async function processIssue(
   });
   const labelsOnIssue = labelsOnIssueResp.data.map(getName);
 
-  logger.debug('Checked labels:');
-  logger.debug(formatStrArray(labelsToProcess.filter(getChecked).map(getName)));
+  logger.debug('Labels to process:');
+  logger.debug(formatStrArray(labelsToProcess.map(formatLabel)));
 
   // Remove labels
   const shouldRemove = ({ name, checked }: Label): boolean =>

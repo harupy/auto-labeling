@@ -1,6 +1,15 @@
-import { extractLabels, getName, getChecked } from '../src/labels';
+import { formatLabel, extractLabels, getName, getChecked } from '../src/labels';
 
 describe('labels', (): void => {
+  it(formatLabel.name, () => {
+    expect(formatLabel({ name: 'foo', checked: true })).toBe(
+      "{ name: 'foo', checked: true }",
+    );
+    expect(formatLabel({ name: 'bar', checked: false })).toBe(
+      "{ name: 'bar', checked: false }",
+    );
+  });
+
   it(extractLabels.name, (): void => {
     const body = [
       '- [] `a`: a',
