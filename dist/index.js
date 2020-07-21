@@ -2534,6 +2534,8 @@ function processIssue(octokit, repo, owner, issue_number, htmlUrl, description, 
         const labelsToIgnore = utils_1.removeDuplicates(listEventsData
             .filter(event => utils_1.isLabelEvent(event) && !utils_1.isCreatedByGitHubActions(event))
             .map(({ label }) => label && label.name));
+        logger.debug('Labels to ignore:');
+        logger.debug(utils_1.formatStrArray(labelsToIgnore));
         // Labels registered in a repository
         const labelsForRepoData = yield octokit.paginate(octokit.issues.listLabelsForRepo, {
             owner,
@@ -2552,8 +2554,8 @@ function processIssue(octokit, repo, owner, issue_number, htmlUrl, description, 
             issue_number,
         });
         const labelsOnIssue = labelsOnIssueResp.data.map(labels_1.getName);
-        logger.debug('Checked labels:');
-        logger.debug(utils_1.formatStrArray(labelsToProcess.filter(labels_1.getChecked).map(labels_1.getName)));
+        logger.debug('Labels to process:');
+        logger.debug(utils_1.formatStrArray(labelsToProcess.map(utils_1.formatLabel)));
         // Remove labels
         const shouldRemove = ({ name, checked }) => !checked && labelsOnIssue.includes(name);
         const labelsToRemove = labelsToProcess.filter(shouldRemove).map(labels_1.getName);
@@ -7015,8 +7017,17 @@ module.exports = require("http");
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeDuplicates = exports.isCreatedByGitHubActions = exports.isLabelEvent = exports.getOffsetDate = exports.parseOffsetString = exports.validateEnum = exports.formatStrArray = void 0;
+exports.removeDuplicates = exports.isCreatedByGitHubActions = exports.isLabelEvent = exports.getOffsetDate = exports.parseOffsetString = exports.validateEnum = exports.formatStrArray = exports.formatLabel = void 0;
 const enums_1 = __webpack_require__(346);
+/**
+ * Format a label into a string representation
+ * @param label labels
+ * @returns string representation of a given label
+ */
+function formatLabel(label) {
+    return `{ name: '${label.name}', checked: ${label.checked} }`;
+}
+exports.formatLabel = formatLabel;
 /**
  * Format a string array into a list
  * @param strArray string array

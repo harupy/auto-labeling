@@ -5,6 +5,7 @@ import * as types from '@octokit/types';
 import { Label, IssueEvent } from './types';
 import { Quiet } from './enums';
 import {
+  formatLabel,
   formatStrArray,
   validateEnum,
   parseOffsetString,
@@ -57,6 +58,9 @@ async function processIssue(
       .map(({ label }) => label && label.name),
   );
 
+  logger.debug('Labels to ignore:');
+  logger.debug(formatStrArray(labelsToIgnore));
+
   // Labels registered in a repository
   const labelsForRepoData = await octokit.paginate(
     octokit.issues.listLabelsForRepo,
@@ -84,8 +88,8 @@ async function processIssue(
   });
   const labelsOnIssue = labelsOnIssueResp.data.map(getName);
 
-  logger.debug('Checked labels:');
-  logger.debug(formatStrArray(labelsToProcess.filter(getChecked).map(getName)));
+  logger.debug('Labels to process:');
+  logger.debug(formatStrArray(labelsToProcess.map(formatLabel)));
 
   // Remove labels
   const shouldRemove = ({ name, checked }: Label): boolean =>
