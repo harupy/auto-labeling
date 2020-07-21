@@ -2514,24 +2514,38 @@ const logger_1 = __webpack_require__(504);
 function processIssue(octokit, repo, owner, issue_number, htmlUrl, description, labelPattern, logger) {
     return __awaiter(this, void 0, void 0, function* () {
         logger.debug(`--- ${htmlUrl} ---`);
-        // Labels extracted from the description
+        // Labels extracted from an issue description
         const labels = labels_1.extractLabels(description, labelPattern);
         if (labels.length === 0) {
             logger.debug('No labels found');
             return;
         }
-        // Labels registered in the repository
+        octokit.issues.listEvents({
+            owner,
+            repo,
+            issue_number,
+        });
+        const listEventsData = yield octokit.paginate(octokit.issues.listEvents, {
+            owner,
+            repo,
+            issue_number,
+        });
+        // Labels added or removed by users
+        const labelsToIgnore = utils_1.removeDuplicates(listEventsData
+            .filter(event => utils_1.isLabelEvent(event) && !utils_1.isCreatedByGitHubActions(event))
+            .map(({ label }) => label && label.name));
+        // Labels registered in a repository
         const labelsForRepoData = yield octokit.paginate(octokit.issues.listLabelsForRepo, {
             owner,
             repo,
         });
         const labelsForRepo = labelsForRepoData.map(labels_1.getName);
-        const labelsRegistered = labels.filter(({ name }) => labelsForRepo.includes(name));
-        if (labelsRegistered.length === 0) {
-            logger.debug('No registered labels found');
+        const labelsToProcess = labels.filter(({ name }) => labelsForRepo.includes(name) && labelsToIgnore.includes(name));
+        if (labelsToProcess.length === 0) {
+            logger.debug('No labels to process');
             return;
         }
-        // Labels that are already applied on the issue
+        // Labels that are already applied on an issue
         const labelsOnIssueResp = yield octokit.issues.listLabelsOnIssue({
             owner,
             repo,
@@ -2539,26 +2553,25 @@ function processIssue(octokit, repo, owner, issue_number, htmlUrl, description, 
         });
         const labelsOnIssue = labelsOnIssueResp.data.map(labels_1.getName);
         logger.debug('Checked labels:');
-        logger.debug(utils_1.formatStrArray(labelsRegistered.filter(labels_1.getChecked).map(labels_1.getName)));
-        // Remove unchecked labels
-        // const shouldRemove = ({ name, checked }: Label): boolean =>
-        //   !checked && labelsOnIssue.includes(name);
-        // const labelsToRemove = labelsRegistered.filter(shouldRemove).map(getName);
-        // logger.debug('Labels to remove:');
-        // logger.debug(formatStrArray(labelsToRemove));
-        // if (labelsToRemove.length > 0) {
-        //   labelsToRemove.forEach(async name => {
-        //     await octokit.issues.removeLabel({
-        //       owner,
-        //       repo,
-        //       issue_number,
-        //       name,
-        //     });
-        //   });
-        // }
-        // Add checked labels
+        logger.debug(utils_1.formatStrArray(labelsToProcess.filter(labels_1.getChecked).map(labels_1.getName)));
+        // Remove labels
+        const shouldRemove = ({ name, checked }) => !checked && labelsOnIssue.includes(name);
+        const labelsToRemove = labelsToProcess.filter(shouldRemove).map(labels_1.getName);
+        logger.debug('Labels to remove:');
+        logger.debug(utils_1.formatStrArray(labelsToRemove));
+        if (labelsToRemove.length > 0) {
+            labelsToRemove.forEach((name) => __awaiter(this, void 0, void 0, function* () {
+                yield octokit.issues.removeLabel({
+                    owner,
+                    repo,
+                    issue_number,
+                    name,
+                });
+            }));
+        }
+        // Add labels
         const shouldAdd = ({ name, checked }) => checked && !labelsOnIssue.includes(name);
-        const labelsToAdd = labelsRegistered.filter(shouldAdd).map(labels_1.getName);
+        const labelsToAdd = labelsToProcess.filter(shouldAdd).map(labels_1.getName);
         logger.debug('Labels to add:');
         logger.debug(utils_1.formatStrArray(labelsToAdd));
         if (labelsToAdd.length > 0) {
@@ -2601,7 +2614,7 @@ function main() {
                     const parsed = utils_1.parseOffsetString(offset);
                     const offsetDate = utils_1.getOffsetDate(new Date(), ...parsed);
                     try {
-                        // Iterate over all open issues and pull requests
+                        // Iterate through all open issues and pull requests
                         for (var _b = __asyncValues(octokit.paginate.iterator(octokit.issues.listForRepo, { owner, repo, since: offsetDate.toISOString() })), _c; _c = yield _b.next(), !_c.done;) {
                             const page = _c.value;
                             for (const issue of page.data) {
@@ -7002,7 +7015,7 @@ module.exports = require("http");
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getOffsetDate = exports.parseOffsetString = exports.validateEnum = exports.formatStrArray = void 0;
+exports.removeDuplicates = exports.isCreatedByGitHubActions = exports.isLabelEvent = exports.getOffsetDate = exports.parseOffsetString = exports.validateEnum = exports.formatStrArray = void 0;
 const enums_1 = __webpack_require__(346);
 /**
  * Format a string array into a list
@@ -7104,6 +7117,33 @@ function getOffsetDate(date, value, unit) {
     }
 }
 exports.getOffsetDate = getOffsetDate;
+/**
+ * Check if a given event is a label event
+ * @param event issue event
+ * @returns true if `event` is a label event otherwise false
+ */
+function isLabelEvent(event) {
+    return ['labeled', 'unlabeled'].includes(event.event);
+}
+exports.isLabelEvent = isLabelEvent;
+/**
+ * Check if a given event is created by a github-actions bot
+ * @param event issue event
+ * @returns true if `event` is created by a github-actions bot otherwise false
+ */
+function isCreatedByGitHubActions(event) {
+    return event.actor.login === 'github-actions[bot]';
+}
+exports.isCreatedByGitHubActions = isCreatedByGitHubActions;
+/**
+ * Remove duplicates in an array
+ * @param array array that may contain duplicates
+ * @returns unique array
+ */
+function removeDuplicates(array) {
+    return [...new Set(array)];
+}
+exports.removeDuplicates = removeDuplicates;
 
 
 /***/ }),

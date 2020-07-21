@@ -2,13 +2,16 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import * as types from '@octokit/types';
 
-import { Label } from './types';
+import { Label, IssueEvent } from './types';
 import { Quiet } from './enums';
 import {
   formatStrArray,
   validateEnum,
   parseOffsetString,
   getOffsetDate,
+  isLabelEvent,
+  isCreatedByGitHubActions,
+  removeDuplicates,
 } from './utils';
 import { extractLabels, getName, getChecked } from './labels';
 import { Logger, LoggingLevel } from './logger';
@@ -25,14 +28,36 @@ async function processIssue(
 ): Promise<void> {
   logger.debug(`--- ${htmlUrl} ---`);
 
-  // Labels extracted from the description
+  // Labels extracted from an issue description
   const labels = extractLabels(description, labelPattern);
   if (labels.length === 0) {
     logger.debug('No labels found');
     return;
   }
 
-  // Labels registered in the repository
+  octokit.issues.listEvents({
+    owner,
+    repo,
+    issue_number,
+  });
+
+  const listEventsData: IssueEvent[] = await octokit.paginate(
+    octokit.issues.listEvents,
+    {
+      owner,
+      repo,
+      issue_number,
+    },
+  );
+
+  // Labels added or removed by users
+  const labelsToIgnore = removeDuplicates(
+    listEventsData
+      .filter(event => isLabelEvent(event) && !isCreatedByGitHubActions(event))
+      .map(({ label }) => label && label.name),
+  );
+
+  // Labels registered in a repository
   const labelsForRepoData = await octokit.paginate(
     octokit.issues.listLabelsForRepo,
     {
@@ -42,16 +67,16 @@ async function processIssue(
   );
 
   const labelsForRepo = labelsForRepoData.map(getName);
-  const labelsRegistered = labels.filter(({ name }) =>
-    labelsForRepo.includes(name),
+  const labelsToProcess = labels.filter(
+    ({ name }) => labelsForRepo.includes(name) && labelsToIgnore.includes(name),
   );
 
-  if (labelsRegistered.length === 0) {
-    logger.debug('No registered labels found');
+  if (labelsToProcess.length === 0) {
+    logger.debug('No labels to process');
     return;
   }
 
-  // Labels that are already applied on the issue
+  // Labels that are already applied on an issue
   const labelsOnIssueResp = await octokit.issues.listLabelsOnIssue({
     owner,
     repo,
@@ -60,33 +85,31 @@ async function processIssue(
   const labelsOnIssue = labelsOnIssueResp.data.map(getName);
 
   logger.debug('Checked labels:');
-  logger.debug(
-    formatStrArray(labelsRegistered.filter(getChecked).map(getName)),
-  );
+  logger.debug(formatStrArray(labelsToProcess.filter(getChecked).map(getName)));
 
-  // Remove unchecked labels
-  // const shouldRemove = ({ name, checked }: Label): boolean =>
-  //   !checked && labelsOnIssue.includes(name);
-  // const labelsToRemove = labelsRegistered.filter(shouldRemove).map(getName);
+  // Remove labels
+  const shouldRemove = ({ name, checked }: Label): boolean =>
+    !checked && labelsOnIssue.includes(name);
+  const labelsToRemove = labelsToProcess.filter(shouldRemove).map(getName);
 
-  // logger.debug('Labels to remove:');
-  // logger.debug(formatStrArray(labelsToRemove));
+  logger.debug('Labels to remove:');
+  logger.debug(formatStrArray(labelsToRemove));
 
-  // if (labelsToRemove.length > 0) {
-  //   labelsToRemove.forEach(async name => {
-  //     await octokit.issues.removeLabel({
-  //       owner,
-  //       repo,
-  //       issue_number,
-  //       name,
-  //     });
-  //   });
-  // }
+  if (labelsToRemove.length > 0) {
+    labelsToRemove.forEach(async name => {
+      await octokit.issues.removeLabel({
+        owner,
+        repo,
+        issue_number,
+        name,
+      });
+    });
+  }
 
-  // Add checked labels
+  // Add labels
   const shouldAdd = ({ name, checked }: Label): boolean =>
     checked && !labelsOnIssue.includes(name);
-  const labelsToAdd = labelsRegistered.filter(shouldAdd).map(getName);
+  const labelsToAdd = labelsToProcess.filter(shouldAdd).map(getName);
 
   logger.debug('Labels to add:');
   logger.debug(formatStrArray(labelsToAdd));
@@ -146,7 +169,7 @@ async function main(): Promise<void> {
         const parsed = parseOffsetString(offset);
         const offsetDate = getOffsetDate(new Date(), ...parsed);
 
-        // Iterate over all open issues and pull requests
+        // Iterate through all open issues and pull requests
         for await (const page of octokit.paginate.iterator(
           octokit.issues.listForRepo,
           { owner, repo, since: offsetDate.toISOString() },

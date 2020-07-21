@@ -3,8 +3,48 @@ import {
   validateEnum,
   parseOffsetString,
   getOffsetDate,
+  isLabelEvent,
+  isCreatedByGitHubActions,
+  removeDuplicates,
 } from '../src/utils';
 import { OffsetUnits } from '../src/enums';
+import { IssueEvent } from '../src/types';
+
+function createDummyIssueEvent(login: string, event: string): IssueEvent {
+  return {
+    id: 0,
+    node_id: 'node_id',
+    url: 'url',
+    actor: {
+      login,
+      id: 0,
+      node_id: 'node_id',
+      avatar_url: 'avatar_url',
+      gravatar_id: 'gravatar_id',
+      url: 'url',
+      html_url: 'html_url',
+      followers_url: 'followers_url',
+      following_url: 'following_url',
+      gists_url: 'gists_url',
+      starred_url: 'starred_url',
+      subscriptions_url: 'subscriptions_url',
+      organizations_url: 'organizations_url',
+      repos_url: 'repos_url',
+      events_url: 'events_url',
+      received_events_url: 'received_events_url',
+      type: 'type',
+      site_admin: false,
+    },
+    event,
+    commit_id: 'commit_id',
+    commit_url: 'commit_url',
+    created_at: 'created_at',
+    label: {
+      name: 'name',
+      color: 'color',
+    },
+  };
+}
 
 describe('utils', () => {
   it(formatStrArray.name, () => {
@@ -54,5 +94,34 @@ describe('utils', () => {
     expect(getOffsetDate(date, 1, OffsetUnits.MONTH)).toEqual(
       new Date('2020-09-10T10:10:10.000Z'),
     );
+  });
+
+  it(isLabelEvent.name, () => {
+    let event: IssueEvent;
+
+    event = createDummyIssueEvent('user', 'labeled');
+    expect(isLabelEvent(event)).toBe(true);
+
+    event = createDummyIssueEvent('user', 'unlabeled');
+    expect(isLabelEvent(event)).toBe(true);
+
+    event = createDummyIssueEvent('user', 'closed');
+    expect(isLabelEvent(event)).toBe(false);
+  });
+
+  it(isCreatedByGitHubActions.name, () => {
+    let event: IssueEvent;
+
+    event = createDummyIssueEvent('github-actions[bot]', 'labeled');
+    expect(isCreatedByGitHubActions(event)).toBe(true);
+
+    event = createDummyIssueEvent('me', 'labeled');
+    expect(isCreatedByGitHubActions(event)).toBe(false);
+  });
+
+  it(removeDuplicates.name, () => {
+    expect(removeDuplicates(['a', 'b', 'a'])).toEqual(['a', 'b']);
+    expect(removeDuplicates([0, 1, 0])).toEqual([0, 1]);
+    expect(removeDuplicates([true, false, true])).toEqual([true, false]);
   });
 });

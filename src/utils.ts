@@ -1,4 +1,5 @@
 import { OffsetUnits } from './enums';
+import { IssueEvent } from './types';
 
 /**
  * Format a string array into a list
@@ -115,4 +116,31 @@ export function getOffsetDate(
       throw Error('Should not reach here');
     }
   }
+}
+
+/**
+ * Check if a given event is a label event
+ * @param event issue event
+ * @returns true if `event` is a label event otherwise false
+ */
+export function isLabelEvent(event: IssueEvent): boolean {
+  return ['labeled', 'unlabeled'].includes(event.event);
+}
+
+/**
+ * Check if a given event is created by a github-actions bot
+ * @param event issue event
+ * @returns true if `event` is created by a github-actions bot otherwise false
+ */
+export function isCreatedByGitHubActions(event: IssueEvent): boolean {
+  return event.actor.login === 'github-actions[bot]';
+}
+
+/**
+ * Remove duplicates in an array
+ * @param array array that may contain duplicates
+ * @returns unique array
+ */
+export function removeDuplicates<T>(array: T[]): T[] {
+  return [...new Set(array)];
 }
