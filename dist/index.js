@@ -2541,7 +2541,7 @@ function processIssue(octokit, repo, owner, issue_number, htmlUrl, description, 
         });
         // Labels added or removed by users
         const labelsToIgnore = utils_1.removeDuplicates(listEventsData
-            .filter(event => utils_1.isLabelEvent(event) && !utils_1.isCreatedByGitHubActions(event))
+            .filter(event => utils_1.isLabelEvent(event) && utils_1.isCreatedByUser(event))
             .map(({ label }) => label && label.name));
         logger.debug('Labels to ignore:');
         logger.debug(utils_1.formatStrArray(labelsToIgnore));
@@ -7026,7 +7026,7 @@ module.exports = require("http");
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeDuplicates = exports.isCreatedByGitHubActions = exports.isLabelEvent = exports.getOffsetDate = exports.parseOffsetString = exports.validateEnum = exports.formatStrArray = void 0;
+exports.removeDuplicates = exports.isCreatedByUser = exports.isLabelEvent = exports.getOffsetDate = exports.parseOffsetString = exports.validateEnum = exports.formatStrArray = void 0;
 const enums_1 = __webpack_require__(346);
 /**
  * Format a string array into a list
@@ -7138,14 +7138,14 @@ function isLabelEvent(event) {
 }
 exports.isLabelEvent = isLabelEvent;
 /**
- * Check if a given event is created by a github-actions bot
+ * Check if a given event is created by a user
  * @param event issue event
- * @returns true if `event` is created by a github-actions bot otherwise false
+ * @returns true if a given event is created by a user otherwise false
  */
-function isCreatedByGitHubActions(event) {
-    return event.actor.login === 'github-actions[bot]';
+function isCreatedByUser(event) {
+    return event.actor.type === 'User';
 }
-exports.isCreatedByGitHubActions = isCreatedByGitHubActions;
+exports.isCreatedByUser = isCreatedByUser;
 /**
  * Remove duplicates in an array
  * @param array array that may contain duplicates

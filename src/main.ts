@@ -10,7 +10,7 @@ import {
   parseOffsetString,
   getOffsetDate,
   isLabelEvent,
-  isCreatedByGitHubActions,
+  isCreatedByUser,
   removeDuplicates,
 } from './utils';
 import { formatLabel, extractLabels, getName } from './labels';
@@ -53,7 +53,7 @@ async function processIssue(
   // Labels added or removed by users
   const labelsToIgnore = removeDuplicates(
     listEventsData
-      .filter(event => isLabelEvent(event) && !isCreatedByGitHubActions(event))
+      .filter(event => isLabelEvent(event) && isCreatedByUser(event))
       .map(({ label }) => label && label.name),
   );
 
