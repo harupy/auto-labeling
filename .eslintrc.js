@@ -17,6 +17,8 @@ module.exports = {
   rules: {
     'import/no-namespace': 'off',
     'no-console': 'off',
+    'object-shorthand': 'error',
+    'prefer-destructuring': 'error',
   },
   env: {
     node: true,
