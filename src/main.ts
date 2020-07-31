@@ -1,4 +1,4 @@
-import core from '@actions/core';
+import * as core from '@actions/core';
 import * as github from '@actions/github';
 import * as octokitTypes from '@octokit/types';
 
@@ -130,6 +130,7 @@ async function processIssue(
 
 async function main(): Promise<void> {
   try {
+    throw Error();
     const token = core.getInput('github-token', { required: true });
     const labelPattern = core.getInput('label-pattern', { required: true });
     const quiet = core.getInput('quiet', { required: false });

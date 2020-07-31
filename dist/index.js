@@ -2513,11 +2513,8 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
     function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
     function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const core_1 = __importDefault(__webpack_require__(470));
+const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
 const enums_1 = __webpack_require__(346);
 const utils_1 = __webpack_require__(611);
@@ -2602,10 +2599,11 @@ function main() {
     var e_1, _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const token = core_1.default.getInput('github-token', { required: true });
-            const labelPattern = core_1.default.getInput('label-pattern', { required: true });
-            const quiet = core_1.default.getInput('quiet', { required: false });
-            const offset = core_1.default.getInput('offset', { required: false });
+            throw Error();
+            const token = core.getInput('github-token', { required: true });
+            const labelPattern = core.getInput('label-pattern', { required: true });
+            const quiet = core.getInput('quiet', { required: false });
+            const offset = core.getInput('offset', { required: false });
             utils_1.validateEnum('quiet', quiet, enums_1.Quiet);
             const logger = new logger_1.Logger(quiet === enums_1.Quiet.TRUE ? logger_1.LoggingLevel.SILENT : logger_1.LoggingLevel.DEBUG);
             const octokit = github.getOctokit(token);
@@ -2654,7 +2652,7 @@ function main() {
             }
         }
         catch (error) {
-            core_1.default.setFailed(error.message);
+            core.setFailed(error.message);
         }
     });
 }
