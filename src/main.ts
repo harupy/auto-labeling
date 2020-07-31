@@ -130,7 +130,6 @@ async function processIssue(
 
 async function main(): Promise<void> {
   try {
-    throw Error();
     const token = core.getInput('github-token', { required: true });
     const labelPattern = core.getInput('label-pattern', { required: true });
     const quiet = core.getInput('quiet', { required: false });
