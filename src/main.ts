@@ -1,6 +1,6 @@
-import * as core from '@actions/core';
-import * as github from '@actions/github';
-import * as types from '@octokit/types';
+import core from '@actions/core';
+import github from '@actions/github';
+import { IssuesGetResponseData } from '@octokit/types';
 
 import { Label, IssueEvent } from './types';
 import { Quiet } from './enums';
@@ -179,11 +179,7 @@ async function main(): Promise<void> {
           { owner, repo, since: offsetDate.toISOString() },
         )) {
           for (const issue of page.data) {
-            const {
-              body,
-              number,
-              html_url,
-            } = issue as types.IssuesGetResponseData;
+            const { body, number, html_url } = issue as IssuesGetResponseData;
 
             await processIssue(
               octokit,
