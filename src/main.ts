@@ -1,4 +1,4 @@
-import * as core from '@actions/core';
+import core from '@actions/core';
 import * as github from '@actions/github';
 import * as octokitTypes from '@octokit/types';
 
@@ -212,4 +212,6 @@ async function main(): Promise<void> {
   }
 }
 
-main();
+main().catch(err => {
+  throw err;
+});
