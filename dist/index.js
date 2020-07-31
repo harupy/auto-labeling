@@ -2599,7 +2599,6 @@ function main() {
     var e_1, _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            throw Error();
             const token = core.getInput('github-token', { required: true });
             const labelPattern = core.getInput('label-pattern', { required: true });
             const quiet = core.getInput('quiet', { required: false });
