@@ -2478,6 +2478,25 @@ function checkMode (stat, options) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -2494,12 +2513,9 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
     function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
     function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const core_1 = __importDefault(__webpack_require__(470));
-const github_1 = __importDefault(__webpack_require__(469));
+const core = __importStar(__webpack_require__(470));
+const github = __importStar(__webpack_require__(469));
 const enums_1 = __webpack_require__(346);
 const utils_1 = __webpack_require__(611);
 const labels_1 = __webpack_require__(66);
@@ -2583,19 +2599,19 @@ function main() {
     var e_1, _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const token = core_1.default.getInput('github-token', { required: true });
-            const labelPattern = core_1.default.getInput('label-pattern', { required: true });
-            const quiet = core_1.default.getInput('quiet', { required: false });
-            const offset = core_1.default.getInput('offset', { required: false });
+            const token = core.getInput('github-token', { required: true });
+            const labelPattern = core.getInput('label-pattern', { required: true });
+            const quiet = core.getInput('quiet', { required: false });
+            const offset = core.getInput('offset', { required: false });
             utils_1.validateEnum('quiet', quiet, enums_1.Quiet);
             const logger = new logger_1.Logger(quiet === enums_1.Quiet.TRUE ? logger_1.LoggingLevel.SILENT : logger_1.LoggingLevel.DEBUG);
-            const octokit = github_1.default.getOctokit(token);
-            const { repo, owner } = github_1.default.context.repo;
-            const { eventName } = github_1.default.context;
+            const octokit = github.getOctokit(token);
+            const { repo, owner } = github.context.repo;
+            const { eventName } = github.context;
             switch (eventName) {
                 case 'issues':
                 case 'pull_request': {
-                    const issue_number = github_1.default.context.issue.number;
+                    const issue_number = github.context.issue.number;
                     const issueResp = yield octokit.issues.get({
                         owner,
                         repo,
@@ -2613,7 +2629,7 @@ function main() {
                         for (var _b = __asyncValues(octokit.paginate.iterator(octokit.issues.listForRepo, { owner, repo, since: offsetDate.toISOString() })), _c; _c = yield _b.next(), !_c.done;) {
                             const page = _c.value;
                             for (const issue of page.data) {
-                                const { body, number, html_url } = issue;
+                                const { body, number, html_url, } = issue;
                                 yield processIssue(octokit, repo, owner, number, html_url, body, labelPattern, logger);
                             }
                             const rateLimitResp = yield octokit.rateLimit.get();
@@ -2635,11 +2651,13 @@ function main() {
             }
         }
         catch (error) {
-            core_1.default.setFailed(error.message);
+            core.setFailed(error.message);
         }
     });
 }
-main();
+main().catch(err => {
+    throw err;
+});
 
 
 /***/ }),
