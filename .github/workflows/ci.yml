@@ -61,28 +61,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # Check the permission of the current actor and set it as an output
-      # so the later steps can use it
-      - uses: actions/github-script@v2
-        id: check-permission
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            // Based on: https://github.com/lannonbr/repo-permission-check-action
-
-            const { owner, repo } = context.repo;
-            const permissionResp = await github.repos.getCollaboratorPermissionLevel({
-              owner,
-              repo,
-              username: context.actor,
-            });
-
-            const { permission } = permissionResp.data;
-            core.setOutput('permission', permission);
-
-      # This step requires 'admin' or 'write' permission.
       - uses: ./
-        if: ${{ contains('admin,write', steps.check-permission.outputs.permission) }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           label-pattern: '- \[(.*?)\] ?`(.+?)`'
