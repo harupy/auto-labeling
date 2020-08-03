@@ -2610,7 +2610,8 @@ function main() {
             const { eventName } = github.context;
             switch (eventName) {
                 case 'issues':
-                case 'pull_request': {
+                case 'pull_request':
+                case 'pull_request_target': {
                     const issue_number = github.context.issue.number;
                     const issueResp = yield octokit.issues.get({
                         owner,
