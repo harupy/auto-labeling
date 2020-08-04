@@ -7,9 +7,9 @@
   "scripts": {
     "build": "tsc && ncc build",
     "format:js": "eslint --fix src/**/*.ts",
-    "format:non-js": "prettier --write --config ./.prettierrc.js --ignore-path .prettierignore \"./**/*.{md,yml,json}\"",
+    "format:non-js": "prettier --write \"./**/*.{md,yml,json}\"",
     "lint:js": "eslint src/**/*.ts",
-    "lint:non-js": "prettier --check --config ./.prettierrc.js --ignore-path .prettierignore \"./**/*.{md,yml,json}\"",
+    "lint:non-js": "prettier --check \"./**/*.{md,yml,json}\"",
     "test": "jest --verbose --colors"
   },
   "dependencies": {},
