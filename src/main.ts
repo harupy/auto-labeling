@@ -146,16 +146,48 @@ async function main(): Promise<void> {
     const { eventName } = github.context;
 
     switch (eventName) {
-      case 'issues':
+      case 'issues': {
+        if (github.context.payload.issue === undefined) {
+          return;
+        }
+
+        const {
+          body,
+          html_url,
+          number: issue_number,
+        } = github.context.payload.issue;
+
+        if (body === undefined || html_url === undefined) {
+          return;
+        }
+
+        await processIssue(
+          octokit,
+          repo,
+          owner,
+          issue_number,
+          html_url,
+          body,
+          labelPattern,
+          logger,
+        );
+        break;
+      }
+
       case 'pull_request':
       case 'pull_request_target': {
-        const issue_number = github.context.issue.number;
-        const issueResp = await octokit.issues.get({
-          owner,
-          repo,
-          issue_number,
-        });
-        const { body, html_url } = issueResp.data;
+        if (github.context.payload.pull_request === undefined) {
+          return;
+        }
+        const {
+          body,
+          html_url,
+          number: issue_number,
+        } = github.context.payload.pull_request;
+
+        if (body === undefined || html_url === undefined) {
+          return;
+        }
 
         await processIssue(
           octokit,
