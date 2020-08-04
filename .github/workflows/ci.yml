@@ -35,6 +35,8 @@ jobs:
         with:
           node-version: '12.x'
 
+      - run: echo ${{ toJson(github) }}
+
       - run: npm install
 
       - run: npm run test
