@@ -11,38 +11,26 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
-
       - uses: actions/setup-node@v1
         with:
           node-version: '12.x'
-
       - run: npm install
-
       - run: npm run lint:js
-
       - run: npm run lint:non-js
 
   test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
-
       - uses: actions/setup-node@v1
         with:
           node-version: '12.x'
-
       - run: npm install
-
       - run: npm run test
-
       - uses: codecov/codecov-action@v1
-
       - run: npm run build
-
       - name: Verify dist/index.js is updated
         run: |
           git_diff=$(git diff)
@@ -57,10 +45,8 @@ jobs:
     strategy:
       matrix:
         offset: ['1H', '1d', '1m']
-
     steps:
       - uses: actions/checkout@v2
-
       - uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
