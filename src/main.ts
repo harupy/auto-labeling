@@ -147,16 +147,12 @@ async function main(): Promise<void> {
 
     switch (eventName) {
       case 'issues': {
-        if (github.context.payload.issue === undefined) {
+        const { issue } = github.context.payload;
+        if (issue === undefined) {
           return;
         }
 
-        const {
-          body,
-          html_url,
-          number: issue_number,
-        } = github.context.payload.issue;
-
+        const { body, html_url, number: issue_number } = issue;
         if (body === undefined || html_url === undefined) {
           return;
         }
@@ -176,15 +172,12 @@ async function main(): Promise<void> {
 
       case 'pull_request':
       case 'pull_request_target': {
-        if (github.context.payload.pull_request === undefined) {
+        const { pull_request } = github.context.payload;
+        if (pull_request === undefined) {
           return;
         }
-        const {
-          body,
-          html_url,
-          number: issue_number,
-        } = github.context.payload.pull_request;
 
+        const { body, html_url, number: issue_number } = pull_request;
         if (body === undefined || html_url === undefined) {
           return;
         }
