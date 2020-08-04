@@ -50,19 +50,16 @@ jobs:
             echo $git_diff
             exit 1
           fi
-
-  labeling:
-    needs: [lint, test]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        offset: ['1H', '1d', '1m']
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: ./
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          label-pattern: '- \[(.*?)\] ?`(.+?)`'
-          offset: ${{ matrix.offset }}
+  # labeling:
+  #   needs: [lint, test]
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       offset: ['1H', '1d', '1m']
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: ./
+  #       with:
+  #         github-token: ${{ secrets.GITHUB_TOKEN }}
+  #         label-pattern: '- \[(.*?)\] ?`(.+?)`'
+  #         offset: ${{ matrix.offset }}
