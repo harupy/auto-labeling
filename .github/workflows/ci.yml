@@ -39,7 +39,7 @@ jobs:
             exit 1
           fi
 
-  labeling:
+  dco:
     needs: [lint, test]
     runs-on: ubuntu-latest
     strategy:
