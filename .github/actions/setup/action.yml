@@ -1,7 +1,4 @@
 runs:
   using: 'composite'
   steps:
-    - uses: actions/setup-node@v1
-      with:
-        node-version: '12.x'
     - run: npm install
