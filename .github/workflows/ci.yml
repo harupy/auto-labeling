@@ -13,10 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '12.x'
-      - run: npm install
+      - uses: .github/actions/setup
       - run: npm run lint:js
       - run: npm run lint:non-js
 
@@ -24,11 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '12.x'
-      - run: npm install
-      - run: npm run test
+      - uses: .github/actions/setup
       - uses: codecov/codecov-action@v1
       - run: npm run build
       - name: Verify dist/index.js is updated
