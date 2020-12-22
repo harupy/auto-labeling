@@ -71,7 +71,7 @@ jobs:
 
       - uses: harupy/auto-labeling@master
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           label-pattern: '- \[(.*?)\] ?`(.+?)`' # matches '- [x] `label`'
 ```
 
@@ -79,8 +79,8 @@ jobs:
 
 ```yml
 inputs:
-  github-token:
-    description: 'GitHub token'
+  repo-token:
+    description: 'Token to use to authorize label changes. Typically the GITHUB_TOKEN secret.'
     required: true
 
   label-pattern:
