@@ -145,8 +145,6 @@ async function main(): Promise<void> {
     const { repo, owner } = github.context.repo;
     const { eventName } = github.context;
 
-    type repoIssuesResponse = octokitTypes.Endpoints["GET /repos/{owner}/{repo}/issues"]["response"];
-
     switch (eventName) {
       case 'issues': {
         const { issue } = github.context.payload;
