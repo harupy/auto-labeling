@@ -22,27 +22,27 @@ async function processIssue(
   owner: string,
   issue_number: number,
   htmlUrl: string,
-  description: string,
+  description: string | undefined | null,
   labelPattern: string,
   logger: Logger,
 ): Promise<void> {
   logger.debug(`--- ${htmlUrl} ---`);
 
   // Labels extracted from an issue description
-  const labels = extractLabels(description, labelPattern);
+  const labels = extractLabels(description as string, labelPattern);
   if (labels.length === 0) {
     logger.debug('No labels found');
     return;
   }
 
-  octokit.issues.listEvents({
+  octokit.rest.issues.listEvents({
     owner,
     repo,
     issue_number,
   });
 
   const listEventsData: IssueEvent[] = await octokit.paginate(
-    octokit.issues.listEvents,
+    octokit.rest.issues.listEvents,
     {
       owner,
       repo,
@@ -62,7 +62,7 @@ async function processIssue(
 
   // Labels registered in a repository
   const labelsForRepoData = await octokit.paginate(
-    octokit.issues.listLabelsForRepo,
+    octokit.rest.issues.listLabelsForRepo,
     {
       owner,
       repo,
@@ -81,7 +81,7 @@ async function processIssue(
   }
 
   // Labels that are already applied on an issue
-  const labelsOnIssueResp = await octokit.issues.listLabelsOnIssue({
+  const labelsOnIssueResp = await octokit.rest.issues.listLabelsOnIssue({
     owner,
     repo,
     issue_number,
@@ -101,7 +101,7 @@ async function processIssue(
 
   if (labelsToRemove.length > 0) {
     labelsToRemove.forEach(async name => {
-      await octokit.issues.removeLabel({
+      await octokit.rest.issues.removeLabel({
         owner,
         repo,
         issue_number,
@@ -119,7 +119,7 @@ async function processIssue(
   logger.debug(formatStrArray(labelsToAdd));
 
   if (labelsToAdd.length > 0) {
-    await octokit.issues.addLabels({
+    await octokit.rest.issues.addLabels({
       owner,
       repo,
       issue_number,
@@ -201,29 +201,24 @@ async function main(): Promise<void> {
 
         // Iterate through all open issues and pull requests
         for await (const page of octokit.paginate.iterator(
-          octokit.issues.listForRepo,
+          octokit.rest.issues.listForRepo,
           { owner, repo, since: offsetDate.toISOString() },
         )) {
           for (const issue of page.data) {
-            const {
-              body,
-              number,
-              html_url,
-            } = issue as octokitTypes.IssuesGetResponseData;
 
             await processIssue(
               octokit,
               repo,
               owner,
-              number,
-              html_url,
-              body,
+              issue.number,
+              issue.html_url,
+              issue.body,
               labelPattern,
               logger,
             );
           }
 
-          const rateLimitResp = await octokit.rateLimit.get();
+          const rateLimitResp = await octokit.rest.rateLimit.get();
           logger.debug(rateLimitResp.data);
         }
         break;
@@ -234,7 +229,9 @@ async function main(): Promise<void> {
       }
     }
   } catch (error) {
-    core.setFailed(error.message);
+    if (error instanceof Error) {
+      core.setFailed(error.message);
+    }
   }
 }
 

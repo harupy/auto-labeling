@@ -124,7 +124,10 @@ export function getOffsetDate(
  * @returns true if `event` is a label event otherwise false
  */
 export function isLabelEvent(event: IssueEvent): boolean {
-  return ['labeled', 'unlabeled'].includes(event.event);
+  if (typeof event.event === 'string') {
+    return ['labeled', 'unlabeled'].includes(event.event);
+  }
+  return false;
 }
 
 /**
@@ -133,7 +136,10 @@ export function isLabelEvent(event: IssueEvent): boolean {
  * @returns true if a given event is created by a user otherwise false
  */
 export function isCreatedByUser(event: IssueEvent): boolean {
-  return event.actor.type === 'User';
+  if (event.actor) {
+    return event.actor.type === 'User';
+  }
+  return false;
 }
 
 /**
