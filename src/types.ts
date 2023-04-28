@@ -5,15 +5,17 @@ export type Label = {
 
 export type IssueEvent = {
   // Copied from `IssuesListEventsResponseData`
-  id: number;
-  node_id: string;
-  url: string;
-  actor: {
+  id?: number | null | undefined;
+  node_id?: string | null | undefined;
+  url?: string | null | undefined;
+  actor?: {
+    name?: string | null | undefined;
+    email?: string | null | undefined;
     login: string;
     id: number;
     node_id: string;
     avatar_url: string;
-    gravatar_id: string;
+    gravatar_id: string | null;
     url: string;
     html_url: string;
     followers_url: string;
@@ -27,11 +29,12 @@ export type IssueEvent = {
     received_events_url: string;
     type: string;
     site_admin: boolean;
-  };
-  event: string;
-  commit_id: string;
-  commit_url: string;
-  created_at: string;
+    starred_at?: string | undefined;
+  } | undefined;
+  event?: string | undefined;
+  commit_id?: string | null | undefined;
+  commit_url?: string | null | undefined;
+  created_at?: string | undefined;
   // Add a new field
   label?: {
     name: string;
