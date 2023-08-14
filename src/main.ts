@@ -24,6 +24,7 @@ async function processIssue(
   htmlUrl: string,
   description: string,
   labelPattern: string,
+  eventType: string,
   logger: Logger,
 ): Promise<void> {
   logger.debug(`--- ${htmlUrl} ---`);
@@ -33,6 +34,10 @@ async function processIssue(
   if (labels.length === 0) {
     logger.debug('No labels found');
     return;
+  }
+
+  if (labels.length === 0 && eventType === "pull_request_target") {
+    throw new Error("No labels have been selected for this PR. Please select the appropriate area and release note category.");
   }
 
   octokit.issues.listEvents({
@@ -165,6 +170,7 @@ async function main(): Promise<void> {
           html_url,
           body,
           labelPattern,
+          eventName,
           logger,
         );
         break;
@@ -190,6 +196,7 @@ async function main(): Promise<void> {
           html_url,
           body,
           labelPattern,
+          eventName,
           logger,
         );
         break;
@@ -219,6 +226,7 @@ async function main(): Promise<void> {
               html_url,
               body,
               labelPattern,
+              eventName,
               logger,
             );
           }
@@ -233,9 +241,13 @@ async function main(): Promise<void> {
         return;
       }
     }
-  } catch (error) {
-    core.setFailed(error.message);
-  }
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+        core.setFailed(error.message);
+    } else {
+        core.setFailed('An unknown error occurred.');
+    }
+}
 }
 
 main().catch(err => {
